@@ -1,13 +1,17 @@
 # Cybersecurity notes & resources
 ## 📚 Table of Contents
 
+- [Cybersecurity notes \& resources](#cybersecurity-notes--resources)
+  - [📚 Table of Contents](#-table-of-contents)
 - [Websites](#websites)
-  - [Search Engines & DBs](#search-engines--dbs)
+  - [Search Engines \& DBs](#search-engines--dbs)
   - [Documentation](#documentation)
   - [Others](#others)
-
-- [Tools & Packages](#tools--packages)
-  - [Gobuster](#gobuster)
+- [Tools \& Packages](#tools--packages)
+- [Terms](#terms)
+  - [Industry Terms and Systems](#industry-terms-and-systems)
+  - [Adversarial Techniques](#adversarial-techniques)
+  - [Security Assessment Methods](#security-assessment-methods)
 
 # Websites
 
@@ -72,7 +76,38 @@
 
 - gobuster: https://github.com/OJ/gobuster
     - *tool for bruteforcing websites Directory/File, DNS and VHost written in Go*
-    - e.g.      gobuster dns -d google.com -w ~/wordlists/subdomains.txt -i
-    - e.g.      gobuster dir -u https://buffered.io -w ~/wordlists/shortlist.txt
+    - e.g.          gobuster dns -d google.com -w ~/wordlists/subdomains.txt -i
+    - e.g.          gobuster dir -u https://buffered.io -w ~/wordlists/shortlist.txt
 
 # Terms
+
+## Industry Terms and Systems
+
+- **Security Operations Center (SOC)**: 
+    - a team that monitors the networks and its systemts to detect malicious cybersecurity events
+
+- **DFIR (Digital Forensics and Incident Response)**:
+    - covers:
+    - **Digital Forensics**: analyzing evidence of an attack and its perpetrators
+      - file systems, system memory, system logs, network logs, etc.
+    - **Incident Response**: the methodology that should be followed to handle cyber attacks
+      - Preparation -> Detection and Analysis -> Containment, Eradication, and Recovery -> Post-Incident Activity
+
+- **SIEM (Security Information and Event Management)**:
+  - a system that collects, aggregates, and analyzes log data from across systems and apps
+  - helps identify abnormal or sus behavior and supports alerting and forensics analysis
+    
+
+## Adversarial Techniques
+
+- **Malware**: malicious software, has many types:
+  - **Virus**: a piece of code that attaches itself to a program
+    - designed to spread from one computer to another and works by altering, overwriting and deleting files once it infects
+  - **Trojan Horse**: a program that shows a desirable function but hides a malicious function underneath
+  - **Ransomware**: encrypts user's files, making the files unreadable without knowing the encryption password
+    - attacker offers to unlock with a ransom
+  
+## Security Assessment Methods
+
+- **Static Analysis**: inspecting the malware without running it
+- **Dynamic Analysis**: runs the malware in a controlled environment and monitors its activities
