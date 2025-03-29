@@ -9,9 +9,9 @@
 - [Tools & Packages](#tools--packages)
   - [Gobuster](#gobuster)
 
-## Websites
+# Websites
 
-### Search Engines & DBs
+## Search Engines & DBs
 
 - **Shodan**: for devices connected to the Internet
     - https://www.shodan.io/
@@ -47,7 +47,7 @@
     - has exploits and proof-of-concept (PoC) code for known software vulnerabilities
     - searchable by CVE id, software name, or platform
 
-### Documentation
+## Documentation
 
 - **Microsoft Documentation**: official technical documentation for all Microsoft products
     - https://learn.microsoft.com/zh-cn/
@@ -62,17 +62,17 @@
     - https://nodejs.org/docs/latest/api/
 
 
-### Others
+## Others
 
 - **PasteBin**: temporary text/code storage and sharing platform with password and burn-after-read features, etc.
     - https://pastebin.com/
     - 
 
-## Tools & Packages
+# Tools & Packages
 
 - gobuster: https://github.com/OJ/gobuster
     - *tool for bruteforcing websites Directory/File, DNS and VHost written in Go*
     - e.g.      gobuster dns -d google.com -w ~/wordlists/subdomains.txt -i
     - e.g.      gobuster dir -u https://buffered.io -w ~/wordlists/shortlist.txt
 
-## Terms
+# Terms
