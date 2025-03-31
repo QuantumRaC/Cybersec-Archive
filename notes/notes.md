@@ -8,6 +8,8 @@
   - [Documentation](#documentation)
   - [Others](#others)
 - [Tools \& Packages](#tools--packages)
+- [Network \& Protocols](#network--protocols)
+- [Cyptography](#cyptography)
 - [Terms](#terms)
   - [Industry Terms and Systems](#industry-terms-and-systems)
   - [Adversarial Techniques](#adversarial-techniques)
@@ -79,6 +81,17 @@
     - e.g.          gobuster dns -d google.com -w ~/wordlists/subdomains.txt -i
     - e.g.          gobuster dir -u https://buffered.io -w ~/wordlists/shortlist.txt
 
+# Network & Protocols
+
+- **SSH (Secure Shell)**: a cryptographic network protocol for secure communication between edvices
+  - encrypts data using crypto algorithms (e.g. [AES](#aes-advanced-encryption-system)) when sent over a network (e.g. Internet)
+  - often used when logging in remotely to a computer or server
+  - for `ssh` command usage see [`ssh`](linux_notes.md#ssh)
+
+# Cyptography
+
+- **AES (Advanced Encryption System)**: ==TODO==
+
 # Terms
 
 ## Industry Terms and Systems
@@ -109,5 +122,5 @@
   
 ## Security Assessment Methods
 
-- **Static Analysis**: inspecting the malware without running it
+- **Static Analysis**: a security assessment of inspecting the malware without running it
 - **Dynamic Analysis**: runs the malware in a controlled environment and monitors its activities
