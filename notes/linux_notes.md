@@ -2,6 +2,12 @@
 
 # (Very) Basic Commands
 
+- `ls`
+  - lists the contents of the working directory
+  - `ls -a` (`-a` is short for `--all`) shows hidden folders (those that beging with `.`)
+  - `-h` for human readeable format
+  - `-l` for long output including read-write permissions and dates
+
 - `touch`
   - `touch newFile` creates newFile under current dir
 
@@ -20,6 +26,10 @@
   - can be used to move or rename file/folders
   - `mv file1 file2` renames file1 to file2
 
+- `file`
+  - determines file type
+  - `file note` -> `note: ASCII text`
+
 - `find`
     - e.g. `find -name name.txt`
     - outputs `/dir/name.txt`
@@ -34,12 +44,18 @@
     - outputs `100 name.txt`
     - word count
 
+# Users
+
+- `su`
+  - switches between users
+  - need password unless you are the root user
+  - `su username`
+
 # Network-Related
 
 - `ssh`
   - e.g. `ssh racc@10.10.10.10` logs in as user racc with target IP using [SSH](notes.md#ssh-secure-shell
 )
-
 
 # Operators
 
@@ -56,3 +72,20 @@
 - operator `>>`
     - also an output redirector but instead appends output at the bottom of the file
     - e.g. `echo newLine >> file` adds "newLine" at the bottom of file without replacing its contents
+
+# Files & Directories
+
+- `/etc`
+  - important root directory
+  - commonplace location to store system files
+  - **`sudoers.d`**: contains a list of users & groups that have permission to run sudo
+  - **`passwd`** & **`shadow`**: shows how the system stores passwords for each user encrypted in sha512
+- `/var`
+  - stores data frequently accessed / written by services / applications
+    - e.g. `/var/log/` - log files from running services / apps
+- `/root`
+  - home directory for the "root" system user
+- `/tmp`
+  - volatile and used to store data that only needs to be accessed once or twice
+  - contents cleared out once computer restarts
+  - **any user can write to this folder by default**; good place to store things like enumeration scripts
