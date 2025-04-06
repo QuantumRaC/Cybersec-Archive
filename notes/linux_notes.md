@@ -17,9 +17,10 @@
 - `rm`
   - `rm file` removes file; `rm -R directory` removes directory
 
-- `cp`
-  - copies the entire contents of an existing file into a new file
+- `cp`&`scp`
+  - (securely) copies the entire contents of an existing file into a new file
   - `cp note note2` copies note to note2
+  - `scp user@10.10.10.10:8000/home/user/doc.txt notes.txt` copies file from remote computer (not logged into)'s port 8000 to local notes.txt
 
 - `mv`
   - instead of creating a new file, the original file is merged
@@ -44,6 +45,52 @@
     - outputs `100 name.txt`
     - word count
 
+# Processes
+- for concept see [processes](notes.md#processes) 
+
+- `ps`
+  - provides list of running processes as current user's session
+  - additional info (status code, session, CPU usage time, name of command being executed)
+  - `ps aux` allows viewing processes run by other users & those that don't run from a session (i.e. system processes)
+
+- `top`
+  - real-time stats about processes running on system
+  - refreshes once every 10 seconds / when using arrow keys to browse
+
+- `kill`
+  - `kill 1337` kills PID 1337
+  - signals to send to process when it's killed:
+    - `SIGTERM` kills but allow it to do some cleanup tasks beforehand
+    - `SIGKILL` kills and doesn't do any cleanup
+    - `SIGSTOP` stops / suspends a process
+
+- `systemctl`
+  - allows interaction with the systemd process / daemon
+  - `systemctl [option] [service]`
+    - options: `start`, `stop`, `enable`, `disable`
+    - `start` and `stop` switches it on and off immediately but does not affect auto-start at boot
+    - `enable` and `disable` doesn't immediately switch it on and off but enables / disables auto-start at boot
+- `fg`
+  - brings the background process back into use (foreground) on the terminal
+
+- `crontab`
+  - used to schedule repetitive tasks via the `cron` daemon
+  - jobs are defined in a crontab file using a 5-field time format followed by the command:
+    - `* * * * * command`
+    - `│ │ │ │ └── day of week (0-7, Sunday = 0 or 7)`
+    - `│ │ │ └──── month (1-12)`
+    - `│ │ └────── day of month (1-31)`
+    - `│ └──────── hour (0-23)`
+    - `└────────── minute (0-59)`
+  - use `crontab -e` to edit the current user's crontab
+  - `crontab -l` to list scheduled tasks
+  - `crontab -r` to remove
+  - e.g. `0 2 * * * /home/user/backup.sh` runs backup script every day at 2:00 AM at the timezone & time of the machine
+  - `@reboot command` runs at reboot
+  - See conceptual overview in [notes.md – cron / crontab](notes.md#cron--crontab)
+
+
+
 # Users
 
 - `su`
@@ -51,11 +98,28 @@
   - need password unless you are the root user
   - `su username`
 
-# Network-Related
+# Networks
 
 - `ssh`
-  - e.g. `ssh racc@10.10.10.10` logs in as user racc with target IP using [SSH](notes.md#ssh-secure-shell
-)
+  - e.g. `ssh racc@10.10.10.10` logs in as user racc with target IP using [SSH](notes.md#ssh-secure-shell)
+  
+- `wget`
+  - allows downloading files from the web via HTTP
+  - `wget https://url/file.txt`
+  - `wget -O output.txt https://file.txt`
+
+- `nmap`
+  - stands for **Network Mapper**
+  - scans hosts and networks to discover open ports, running services, OS info, and firewall rules
+  - useful for diagnostics, network mapping, and security auditing
+  - Common usage:
+    - `nmap -p 22 <ip>` – check if SSH port is open
+    - `nmap <ip>` – quick scan of the most common 1000 TCP ports
+    - `nmap -p- <ip>` – scan all 65535 TCP ports
+    - `nmap -sV <ip>` – detect service versions
+    - `nmap -O <ip>` – attempt OS detection
+    - `nmap -sn <ip-range>` – ping scan, shows which hosts are online
+
 
 # Operators
 
@@ -72,6 +136,26 @@
 - operator `>>`
     - also an output redirector but instead appends output at the bottom of the file
     - e.g. `echo newLine >> file` adds "newLine" at the bottom of file without replacing its contents
+
+# Modules
+
+- `HTTPServer`
+  - `python3 -m http.server` to start server using module
+  - serves on a specific port from machine's IP
+
+# Package Management
+
+- `apt`
+  - manages software packages on Debian-based systems (e.g. Ubuntu)
+  - automatically handles dependencies and retrieves packages from online repo
+  - common commands:
+    - `sudo apt update` – updates local package index
+    - `sudo apt upgrade` – upgrades all upgradable packages
+    - `sudo apt install <pkg>` – installs specified package
+    - `sudo apt remove <pkg>` – removes specified package (keeps config)
+    - `sudo apt purge <pkg>` – removes package and its config files
+    - `sudo apt autoremove` – cleans up unused packages
+
 
 # Files & Directories
 

@@ -7,13 +7,16 @@
   - [Search Engines \& DBs](#search-engines--dbs)
   - [Documentation](#documentation)
   - [Others](#others)
+- [Linux \& Shell Resources](#linux--shell-resources)
 - [Tools \& Packages](#tools--packages)
+  - [Package Management Concepts](#package-management-concepts)
 - [Network \& Protocols](#network--protocols)
 - [Cyptography](#cyptography)
-- [Terms](#terms)
+- [Cybersecurity Terms](#cybersecurity-terms)
   - [Industry Terms and Systems](#industry-terms-and-systems)
   - [Adversarial Techniques](#adversarial-techniques)
   - [Security Assessment Methods](#security-assessment-methods)
+- [Computer Terms \& System Basics](#computer-terms--system-basics)
 
 # Websites
 
@@ -55,6 +58,9 @@
 
 ## Documentation
 
+- **Linux Documentation Searchup**:
+  - linux.die.net
+
 - **Microsoft Documentation**: official technical documentation for all Microsoft products
     - https://learn.microsoft.com/zh-cn/
 
@@ -72,7 +78,30 @@
 
 - **PasteBin**: temporary text/code storage and sharing platform with password and burn-after-read features, etc.
     - https://pastebin.com/
-    - 
+
+
+# Linux & Shell Resources
+
+- **DigitalOcean Community Tutorials**  
+  - https://www.digitalocean.com/community/tutorials  
+  - Practical, high-quality guides for Linux, servers, networking, and sysadmin tasks
+
+- **Linuxize**  
+  - https://linuxize.com  
+  - Clear explanations of Linux commands, tools, and scripting
+
+- **How-To Geek (Linux)**  
+  - https://www.howtogeek.com/tag/linux/  
+  - Beginner-friendly articles with real examples of command usage
+
+- **OverTheWire: Bandit Game**  
+  - https://overthewire.org/wargames/bandit/  
+  - Gamified way to learn Linux basics and shell skills through puzzles
+
+- **TryHackMe: Linux Fundamentals & Labs**  
+  - https://tryhackme.com  
+  - Interactive cybersecurity platform with beginner-friendly Linux labs
+
 
 # Tools & Packages
 
@@ -80,6 +109,31 @@
     - *tool for bruteforcing websites Directory/File, DNS and VHost written in Go*
     - e.g.          gobuster dns -d google.com -w ~/wordlists/subdomains.txt -i
     - e.g.          gobuster dir -u https://buffered.io -w ~/wordlists/shortlist.txt
+
+## Package Management Concepts
+
+- **APT (Advanced Package Tool)**
+  - package management system used by Debian-based Linux distributions
+  - allows users to install, update, and remove software while resolving dependencies automatically
+  - fetches packages from online repositories defined in system config files
+  - see related commands in [linux_notes.md – apt](linux_notes.md#package-management)
+  - **GPG Keys (GNU Privacy Guard)**
+    - cryptographic keys used to verify the authenticity of software packages and repositories
+    - APT checks repository signatures against trusted GPG keys before allowing installations
+    - missing or invalid GPG keys can cause APT to reject package updates with errors like `NO_PUBKEY`
+  
+- **Adding a package from a third-party repository (APT workflow):**
+  1. **Add GPG key** to trust the source  
+     `wget -qO - <key-url> | sudo apt-key add -`
+  2. **Add repository** to `/etc/apt/sources.list.d/`  
+     (e.g., write a `deb https://...` line to a new `.list` file)
+  3. **Update package index**  
+     `sudo apt update` — fetches the latest package info from the new repo
+  4. **Install the package**  
+     `sudo apt install <package-name>`
+  - `apt update` only refreshes package info — it does **not install** anything.
+
+
 
 # Network & Protocols
 
@@ -92,7 +146,7 @@
 
 - **AES (Advanced Encryption System)**: ==TODO==
 
-# Terms
+# Cybersecurity Terms
 
 ## Industry Terms and Systems
 
@@ -124,3 +178,36 @@
 
 - **Static Analysis**: a security assessment of inspecting the malware without running it
 - **Dynamic Analysis**: runs the malware in a controlled environment and monitors its activities
+
+# Computer Terms & System Basics
+
+- **Processes**
+  - OS uses namespaces to split up resources (CPU, RAM, priority)
+  - only processes that are in the same namespace can see each other
+  - for linux see [linux process commands](linux_notes.md#processes)
+  - **PID**: unique identifier assigned to each running process in a system
+    - usually sequential order but can be recycled
+  - e.g. `systemd` command (system's init on Ubuntu) has PID 1; every thing that starts is a child process of `systemd`
+  - *when executing scripts, `Ctrl+Z` can background a process.*
+  - **flags**: 
+    -  Main States:
+       - `R`: **Running** – process is on the CPU or ready to run  
+       - `S`: **Sleeping** – waiting for an event (e.g., I/O)  
+       - `D`: **Uninterruptible sleep** – waiting for disk/I/O, can't be killed  
+       - `T`: **Stopped** – paused by job control or debugger  
+       - `Z`: **Zombie** – finished but not cleaned up by parent  
+       - `X`: **Dead** – defunct (very rare)
+    - Additional Flags:
+      - `+`: **Foreground** process group  
+      - `<`: **High priority** (negative nice value)  
+      - `N`: **Low priority** (positive nice value)  
+      - `L`: **Pages locked** into memory  
+      - `s`: **Session leader** (e.g., shell)  
+      - `l`: **Multi-threaded** process  
+      - `E`: **Being debugged** (traced)
+
+- **cron / crontab**
+  - `cron`: a time-based job scheduler daemon that runs tasks automatically at specified times or intervals
+  - `crontab` (cron table): the *config file* where recurring tasks are defined using a *5-field time format followed by the command*
+  - Fields (in order): minute, hour, day of month, month, day of week
+  - See command details and formatting in [linux cron section](linux_notes.md#crontab)
