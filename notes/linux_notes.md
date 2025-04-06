@@ -102,6 +102,7 @@
 
 - `ssh`
   - e.g. `ssh racc@10.10.10.10` logs in as user racc with target IP using [SSH](notes.md#ssh-secure-shell)
+  - runs on port 22
   
 - `wget`
   - allows downloading files from the web via HTTP
