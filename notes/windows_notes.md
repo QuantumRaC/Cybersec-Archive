@@ -114,3 +114,82 @@
 - `shutdown /s` shuts down a system
 - `shutdown /r` restarts a system
 - `shutdown /a` aborts a scheduled shutdown
+
+## PowerShell
+
+- object-oriented - comparison to traditional cmd shell (text-based)
+- commands are known as **cmdlets**
+  - verb-noun naming convention
+  - `Cmdlet -Property arg`
+- **Piping** allows the output of one command be the input for another
+  - more powerful in PS because it passes objects instead of text only
+- display all properties by appending `| Format-List *`
+- operators
+  > `-eq` equals
+  > `-ne` not equal
+  > `-gt` greater than
+  > `-ge` greater than or equal to
+  > `-lt` less than
+  > `-le` less than or equal to
+
+- `Get-Command`
+  - lists all available cmdlets, functions, aliases, and scripts that can be executed in current PS session
+  - `Get-Command -CommandType "Function"` displays only type "Function"
+- `Get-Help [command]`
+  - provides usage, param, and examples
+  - `Get-Help [command] -examples` outputs examples
+- `Get-Alias`
+  - lists all aliases available
+  - Alias: alternative names for cmdlets
+- `Find-Module`
+  - searches for modules in online repos
+  - `Find-Module -Name "pattern*"` searches for ones with a similar name(pattern) - `*` is a wildcard
+
+- `New-Item -Path ".\path" -ItemType "Directory"`
+  - creates new item at path
+- `Remove-Item -Path ".\path"`
+  - removes item at path
+- `Copy-Item -Path .\path -Destination .\path`
+- `Get-ChildItem -Path ".\path"`
+  - alias of `ls`
+- `Get-Content -Path ".\path"`
+  - displays content
+
+### Filtering Cmdlets
+
+- `Where-Object -Property "Extension" -eq ".txt"`
+  - filters all objects of .txt ext
+  - other properties: e.g. `"Name"` 
+- `Sort-Object -Propety property -descending`
+  - sorts object by property in descending order
+- `Select-Object property, property`
+  - refines output to show only properties (columns)specified
+  - `Select-Object -First 1` displays the first object
+- `Select-String -Path ".\path" -Pattern "pattern"`
+  - searches for text patterns within files
+  - supports regex
+
+- `Get-ComputerInfo`
+  - retrievs system information
+  - OS, hardware, BIOS, etc.
+- `Get-LocalUser`
+  - lists all local user accounts on the system
+- `Get-NetIPConfiguration`
+  - info about network interfaces
+  - IP addr, DNS, gateway configurations
+  - `Get-NetIPAddress` shows details for all IP addresses configured, including inactive ones
+
+- `Get-Process`
+  - provides detailed view of all currently running processes
+- `Get-Service`
+  - information about status of services on the machine
+  - *for troubleshooting by system admin & forensics analysts*
+- `Get-NetTCPConnection`
+  - displays current TCP connections
+  - *handy during incident response / malware analysis task*
+- `Get-FileHash -Path .\path`
+  - generates file hashes
+  - *valuable in incident response, threat hunting, & malware analysis*
+
+- `Invoke-Command`
+  - runs commands on local and remote computers
