@@ -94,3 +94,23 @@
   - `dir /a` = `ls -a`
   - `dir /s` displayes files in current fir & all subdir
   - `tree` visually represents child dir & subdir
+- `mkdir dir_name` makes directory
+- `rmdir dir_name` deletes directory
+
+- `type` dumps contents of file onto screen
+  - `more` for longer files?
+- `copy file destination_file` copies file to destination
+  - `move` works the same
+- `del` or `erase` deletes file
+
+- `tasklist` lists running processes
+  - `tasklist /FI "imagename eq sshd.exe"` sets filter image eq sshd.exe and searches for tasks related to sshd.exe
+- `taskkill /PID target_pid` kills process with target_pid
+
+- `chkdsk` checks the file system and disk volumes for errors and bad sectors
+- `driverquery` displays list of installed device drivers
+- `sfc /scannow` scans system files for corruption and repairs them if possible
+
+- `shutdown /s` shuts down a system
+- `shutdown /r` restarts a system
+- `shutdown /a` aborts a scheduled shutdown
