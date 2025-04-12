@@ -37,7 +37,7 @@
     - x.x.x.0 reserved for network address
     - x.x.x.255 reserved for broadcast address (targets all hosts on network)
   - **subnet mask** of 255.255.255.0 can be written as /24 (leftmost 24 bits of the IP doesn't change across the subnet)
-  - **Private addresses** - isolated from the outside world; to access Internet the router must have a public IP addr and support **NAT** (Network Address Translation)
+  - **Private addresses** - isolated from the outside world; to access Internet the router must have a public IP addr and support [**NAT** (Network Address Translation)](#nat-network-address-translation)
     - 10.0.0.0 ~ 10.255.255.255 (10/8)
     - 172.16.0.0 ~ 172.31.255.255 (172.16/12)
     - 192.168.0.0 ~ 192.168.255.255 (192.168/16)
@@ -57,6 +57,7 @@
 - **Routing**
   - functions at layer 3
   - inspects IP addr, forwards packet to the best network (router) so packet gets closer to destination
+  - see [routing algorithms](#routing-algorithms)
 
 - **Encapsulation**
   - the process of every layer adding a header / trailer to the received unit of data and sending the encapsulated unit to layer below
@@ -75,12 +76,14 @@
   - allows reaching to specific processes on target host
   - connectionless protocol operating 
   - layer 4 (transport layer)
+  - 65,536 ports
   - does not even know if the packet has been delivered
   - a UDP data unit that encapsulates the app data is a *UDP datagram*.
 
 - **TCP (Transmission Control Protocol)**
   - connection-oriented (required TCP connection) transport protocol
   - layer 4
+  - 65,536 ports
   - each data octet has a sequence number - receiver can identify lost / duplicated packets, and acknowledge reception by specifying last received octet
   - TCP Connection
     - requires a **three-way handshake**
@@ -97,3 +100,56 @@
   - *Daytime server* - listens on port 13, replies with current day and time
   - *Web server* - listens on port 80, serves web pages
     - `GET / HTTP/1.1` gets the host
+
+- **DHCP (Dynamic Host Configuration Protocol)**
+  - level 7  protocol that relies on UDP (port 67 for server, port 68 for client)
+  - automated way to configure devices connected to the server
+  - four steps (*DORA*):
+    1. *Discover* - broadcases DHCPDISCOVER message seeking the local DHCP server if exists
+        - sends to broadcast addr
+    2. *Offer* - server responds with a DHCPOFFER message with an IP addr available for client to accept
+    3. *Request* - client responds with DHCPREQUEST message indicating accepting the offered IP
+    4. *Acknowledge* - server responds with DHCPACK to confirm the offered IP addr being assigned to client
+        - client changes addrb from no IP configuration to accepted IP
+  - DHCP provides
+    - leased IP addr to access network resources
+    - gateway to route packets outside local network
+    - a DNS server to resolve domain names
+
+- **ARP (Address Resolution Protocol)**
+  - allows translation from layer 3 to 2 addressing
+  - makes it possible to find MAC addr of another device on the Ethernet
+    - originally Ethernet packets need MAC addr as destination & src
+  - machine sends ARP request from MAC addr to broadcase MAC addr, to ask for the other to respond with its MAC addr
+  - not encapsulated within UDP or IP packet; directly encapsulated within Ethernet frame
+
+- **ICMP (Internet Control Message Protocol)**
+  - network diagnostics & error reporting
+  - commands that use ICMP
+    - `ping` uses ICMP; measures round-trip time (RTT)
+    - `traceroute` (linux) / `tracert` (Windows) uses ICMP to discover route from host to target; requires TTL field to become 0
+
+- **NAT (Network Address Translation)**
+  - uses one public IP addr to provide access to many private IP addrs
+  - routers supporting NAT needs to track ongoing connections, & maintain a table translating network addrs between internal (generally private) & external (generally public) networks
+
+## Routing Algorithms
+
+- **OSPF (Open Shortest Path First)**
+  - has routers exchange updates about states of their connected links & networks
+  - each router has complete map of network and determines the best routes
+
+- **EIGRP (Enhance Interior Gateway Routing Protocol)**
+  - Cisco proprietary routing protocol
+  - allows routers to share info about networks they can reach & cost (bandwidth, delay, etc.)
+  - routers use info to choose most efficient paths
+
+- **BGP (Border Gateway Protocol)**
+  - primary routing protocol on the Internet
+  - allows ISPs exchange routing info & establish paths
+  - ensures data is routed efficiently even between networks
+
+- **RIP (Routing Information Protocol)**
+  - simple protocol used often in small networks
+  - routers share information about networks they can reach & number of hops (routers) required
+  - each router builds a routing table and chooses routes with fewest hops
