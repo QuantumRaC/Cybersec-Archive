@@ -10,7 +10,6 @@
 - [Linux \& Shell Resources](#linux--shell-resources)
 - [Tools \& Packages](#tools--packages)
   - [Package Management Concepts](#package-management-concepts)
-- [Network \& Protocols](#network--protocols)
 - [Cyptography](#cyptography)
 - [Cybersecurity Terms](#cybersecurity-terms)
   - [Industry Terms and Systems](#industry-terms-and-systems)
@@ -35,7 +34,7 @@
 
 - **Virustotal**: website that provides virus-scanning service for files using antivirus engines
     - https://www.virustotal.com/gui/home/upload
-    - allows users to scan files via url, ip, domain, upload, or file hash
+    - allows users to scan files via url, IP, domain, upload, or file hash
 
 - **Have I Been Pwned (HIBP)**: tells you if an *email address* has appeared in a leaked data breach
     - https://haveibeenpwned.com/
@@ -133,14 +132,6 @@
      `sudo apt install <package-name>`
   - `apt update` only refreshes package info — it does **not install** anything.
 
-
-
-# Network & Protocols
-
-- **SSH (Secure Shell)**: a cryptographic network protocol for secure communication between edvices
-  - encrypts data using crypto algorithms (e.g. [AES](#aes-advanced-encryption-system)) when sent over a network (e.g. Internet)
-  - often used when logging in remotely to a computer or server
-  - for `ssh` command usage see [`ssh`](linux_notes.md#ssh)
 
 # Cyptography
 

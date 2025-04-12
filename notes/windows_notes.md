@@ -24,6 +24,9 @@
     - *Pro*: supports tools like Assigned Access, Dynamic Provisioning, and Windows Update for Business
     - *Home*: lacks enterprise-level management tools
 
+- Windows Updates are typically released on the 2nd Tuesday each month (*Patch Tuesday*)
+  - `control /name Microsoft.WindowsUpdate` accesses Windows Update from cmd
+
 ## File System
 
 - **NTFS(New Technology File System)**
@@ -48,6 +51,7 @@
 ## Features
 
 - **BitLocker**
+  - https://learn.microsoft.com/en-us/windows/security/operating-system-security/data-protection/bitlocker/
   - full disk encryption feature built into Windows (available on **Windows Pro**, **Enterprise**, and **Education** editions)
   - protects data by encrypting entire drives
   - prevents access if the device is lost or stolen
@@ -55,6 +59,19 @@
   - can also require a PIN or USB key for extra protection
   - supports both **OS drives** and **removable drives** (BitLocker To Go)
   - recoverable using a **BitLocker recovery key** (must be backed up when encryption is set up)
+
+- **TPM (Trusted Platform Module)**
+  - tech designed to provide hardware-based, security-related functions
+  - a TPM chip is a secure crypto-processor designed to carry out cryptographic operations
+  - works with BitLocker to ensure computer isn't tampered with while system was offline
+
+- On devices that don't have a TPM, BitLocker can still be used to encrypt the OS drive, requiring either
+  - startup key
+  - password
+
+- **VSS (Volume Shadow Copy Service)**
+  - creates consistent shadow copy of the data to be backed up
+  - allows creating restore points, performing system restores, configuring restore settings, deleting restore points 
 
 ## User Accounts, Profiles, Permissions
 
@@ -64,6 +81,20 @@
   - helps prevent malware from damaging PC
   - apps and tasks always run in the security context of a non-admin account unless admin authorizes
   - by default doesn't apply to built-in local admin account
+
+## Active Directory
+
+- **Active Directory (AD)**
+  - centralized administration of a Windows computer network
+  - run by Domain Controller server
+
+- **delegation**: granting a user or group limited privileges over a specific set of objects without giving them full domain admin rights
+
+## Authentication Methods
+
+- **Kerberos**: used by any recent version of Windows; default protocol
+  
+- **NetNTLM**: legacy protocol
 
 ## Windows Cmd
 
@@ -193,3 +224,14 @@
 
 - `Invoke-Command`
   - runs commands on local and remote computers
+
+
+# Bash Scripts
+
+- **Shebang**: `#!/bin/bash` at the start of scripts
+  - specifies interpreter to use for executing the script
+- To add *execution permission* to script run `chmod +x name.sh`
+- Syntax
+  - `read [var]` takes input from user and stores in `var`
+  - `for i in {1..10}; \n do \n done` is a for loop with both ends inclusive
+  - `if [condition]; then \n else \n fi` for if statement

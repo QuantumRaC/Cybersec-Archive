@@ -45,6 +45,8 @@
     - outputs `100 name.txt`
     - word count
 
+
+
 # Processes
 - for concept see [processes](notes.md#processes) 
 
@@ -96,12 +98,13 @@
 - `su`
   - switches between users
   - need password unless you are the root user
-  - `su username`
+  - `su username` switches to username
+  - `sudo su` becomes root user
 
 # Networks
 
 - `ssh`
-  - e.g. `ssh racc@10.10.10.10` logs in as user racc with target IP using [SSH](notes.md#ssh-secure-shell)
+  - e.g. `ssh racc@10.10.10.10` logs in as user racc with target IP using [SSH](network_notes.md#ssh-secure-shell)
   - runs on port 22
   
 - `wget`
@@ -137,6 +140,26 @@
 - operator `>>`
     - also an output redirector but instead appends output at the bottom of the file
     - e.g. `echo newLine >> file` adds "newLine" at the bottom of file without replacing its contents
+
+# Shells
+
+- `echo $SHELL` shows which shell you're using
+  - `/etc/shells` contains all installed shells on a Linux system
+  - `.chsh -s /usr/bin/zsh` permanently changes default shell to `zsh`
+
+- Shells
+  - **Bash (Bourne Again Shell)**
+    - default for most Linux distributions
+    - in the middle of completing a command, tab key automatically completes the command or gives suggestions
+    - keeps a history file & logs all commands
+      - `history` displays all previous commands
+  - **Fish (Friendly Interactive Shell)**
+    - very simple syntax & auto spell correction for commands
+    - limited scripting features
+  - **Zsh (Z Shell)**
+    - modern shell with tab completion & command history functionality
+    - capable of writing scripts
+    - extensive customization makes it slower than other shells
 
 # Modules
 
