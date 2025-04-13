@@ -12,6 +12,7 @@
       - [Network Services](#network-services)
       - [Web](#web)
       - [File / Email Transfer](#file--email-transfer)
+      - [Security / Encryption](#security--encryption)
   - [Routing Algorithms](#routing-algorithms)
 
 # Network & Protocols
@@ -180,9 +181,15 @@
 
 #### Web
 
-- **HTTP (Hypertext Transfer Protocol) / HTTPS**
+- **HTTP (Hypertext Transfer Protocol)**
   - relies on TCP, usually TCP **port 80** and 443, sometimes 8080 and 8443
   - designed to retrieve web pages
+
+- **HTTPS**
+  - HTTP over [TLS](#tls)
+  1. TCP three-way handshake with target server
+  2. establishes TLS session
+  3. communicate via HTTP (e.g. issue requests) 
 
 #### File / Email Transfer
 
@@ -220,6 +227,22 @@
     - `MOVE <sequence_set> <mailbox>` moves specified message to another mailbox
     - `COPY <sequence_set> <data_item_name>` copies specified message to another mailbox
     - `LOGOUT` logs out
+
+#### Security / Encryption
+
+<a name="tls"> </a>
+
+- **TLS (Transport Layer Security)**
+  - layer 6
+  - cryptographic protocol that allows secure (confidential & intact) comms between client and server over insecure network
+  - upgrade of SSL (Secure Sockets Layer) in 1999
+  - *TLS certificate*:
+    > server admin creates Certificate Signing Request, submits to Certificate Authority; 
+    > CA verifies CSR & issues digital cert; 
+    > signed cert can be used to identify the server or client to others
+    > signed cert must be installed on host for host to confirm its validity
+  - packets are encrypted, need access to private key
+  - only changes HTTP; TCP and IP are not modified
 
 ## Routing Algorithms
 
