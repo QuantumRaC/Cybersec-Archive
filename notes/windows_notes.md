@@ -1,3 +1,18 @@
+## 📚 Table of Contents
+
+- [Windows OS Notes](#windows-os-notes)
+  - [Windows 11 Home vs Pro (Security-wise)](#windows-11-home-vs-pro-security-wise)
+  - [File System](#file-system)
+  - [Features](#features)
+  - [User Accounts, Profiles, Permissions](#user-accounts-profiles-permissions)
+  - [Active Directory](#active-directory)
+  - [Authentication Methods](#authentication-methods)
+  - [Windows Cmd](#windows-cmd)
+  - [PowerShell](#powershell)
+    - [Filtering Cmdlets](#filtering-cmdlets)
+- [Bash Scripts](#bash-scripts)
+
+
 # Windows OS Notes
 
 - Current version of Windows Server OS = **Windows Server 2019**

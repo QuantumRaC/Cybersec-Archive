@@ -1,3 +1,16 @@
+## 📚 Table of Contents
+
+- [Linux Notes \& Resources](#linux-notes--resources)
+- [(Very) Basic Commands](#very-basic-commands)
+- [Processes](#processes)
+- [Users](#users)
+- [Networks](#networks)
+- [Operators](#operators)
+- [Shells](#shells)
+- [Modules](#modules)
+- [Package Management](#package-management)
+- [Files \& Directories](#files--directories)
+
 # Linux Notes & Resources
 
 # (Very) Basic Commands
@@ -105,8 +118,11 @@
 
 - `ssh`
   - e.g. `ssh racc@10.10.10.10` logs in as user racc with target IP using [SSH](network_notes.md#ssh-secure-shell)
-  - runs on port 22
+  - runs on **port 22**
   
+- `telnet`
+  - see [Telnet](network_notes.md#telnet)
+
 - `wget`
   - allows downloading files from the web via HTTP
   - `wget https://url/file.txt`
@@ -124,6 +140,8 @@
     - `nmap -O <ip>` – attempt OS detection
     - `nmap -sn <ip-range>` – ping scan, shows which hosts are online
 
+- `nslookup [url]`
+  - looks up the domain's IP addr
 
 # Operators
 
