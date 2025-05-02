@@ -119,6 +119,8 @@
 - `ssh`
   - e.g. `ssh racc@10.10.10.10` logs in as user racc with target IP using [SSH](network_notes.md#ssh-secure-shell)
   - runs on **port 22**
+  - `ssh hostname` if username is same as logged-in username
+  - argument `-X` required to support running graphical interfaces
   
 - `telnet`
   - see [Telnet](network_notes.md#telnet)
@@ -142,6 +144,43 @@
 
 - `nslookup [url]`
   - looks up the domain's IP addr
+
+- `ip address show`
+  - `ip a s` - lists the available network interfaces
+
+- `libpcap` library
+  - `tcpdump`
+    - basic packet capture
+      - `-i INTERFACE` - listens to a specific interface; or `-i any` `-i eth0`
+        - `ip`/`ip6`/`udp`/`tcp`/`icmp` - add protocol name after `INTERFACE` to filter by protocol
+      - `-w FILE` - saves captures packets to file (.pcap)
+      - `-r FILE` - reads packets from a file
+      - `-c COUNT` - specifies the number of packets to capture; without specifying, it continues til interruption
+      - `-n` - stops resolving IP addr with DNS lookup
+        - `-nn` stops both DNS and port number lookup (resolves port number into port name (e.g. 80 to http))
+      - `-v` - to produce a slightly more verbose output; adds TTL, identification, total length & options in IP packets, etc.
+        - `-vv` is more verbose, `-vvv` even more verbose
+      - `host IP`/`host HOSTNAME` - e.g. example.com - listens to packets exchanged with specific host
+        - `src host IP`/`src host HOSTNAME` or `dst host IP`/`dst host HOSTNAME`
+      - `port PORT_NUMBER` - filters by port
+        - `src port PORT_NUMBER` or `dst port PORT_NUMBER`
+    - **logical arguments (and, or, not) work in `tcpdump`.**
+    - filtering
+      - `greater LENGTH`/`less LENGTH` - filters packets with greater or equal to / less than or equal to specified length
+      - **header bytes**:
+        - tcp allows referring to contents of any byte in the header with `proto[expr:size]` 
+          - (proto is protocol; expr indicates byte offset starting at 0; size (optional) is the number of bytes we want to examine)
+          - can use binary operations
+          - `tcp[tcpflags]` refer to the TCP flags field
+            - `tcpflags` i.e. `tcp-syn`, `tcp-ack`, `tcp-fin`, `tcp-rst`, `tcp-push`
+          - e.g. `tcpdump "tcp[tcpflags] == tcp-syn` captures TCP packets with only the SYN flag set and all other flags unset
+            - `tcpdump "tcp[tcpflags] & (tcp-syn|tcp-ack) != 0"` captures TCP packets with at least the SYN or ACK flag set
+    - displaying packets
+      - `-q` quick output that prints timestamp, src and dst IP addr & port number
+      - `-e` prints link-level header (i.e. includes MAC addr in output)
+      - `-A` shows packet data in ASCII
+      - `-xx` shows packet data in hex
+      - `-X` shows packet headers and data in hex and ASCII
 
 # Operators
 

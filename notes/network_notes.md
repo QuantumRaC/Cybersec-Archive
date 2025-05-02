@@ -87,13 +87,26 @@
 
 ## Protocols
 
+| Protocol Type     | Cleartext Protocol | Port | Secure Protocol | Secure Port |
+|-------------------|--------------------|------|------------------|-------------|
+| Remote Access     | TELNET             | 23   | SSH              | 22          |
+| File Transfer     | FTP                | 21   | SFTP (over SSH)  | 22          |
+|                   |                    |      | FTPS (FTP+TLS)   | 990         |
+| Email Sending     | SMTP               | 25   | SMTPS            | 465 / 587   |
+| Email Receiving   | POP3               | 110  | POP3S            | 995         |
+|                   | IMAP               | 143  | IMAPS            | 993         |
+| Web               | HTTP               | 80   | HTTPS            | 443         |
+| DNS               | DNS                | 53   | DNS over TLS     | 853         |
+
+
 ### Layer 2 (Data Link)
 
 - **ARP (Address Resolution Protocol)**
   - allows translation from layer 3 to 2 addressing
+  - finds MAC addr of IP addr
   - makes it possible to find MAC addr of another device on the Ethernet
     - originally Ethernet packets need MAC addr as destination & src
-  - machine sends ARP request from MAC addr to broadcase MAC addr, to ask for the other to respond with its MAC addr
+  - machine sends ARP request from MAC addr to broadcast MAC addr, to ask for the other to respond with its MAC addr
   - not encapsulated within UDP or IP packet; directly encapsulated within Ethernet frame
 
 ### Layer 3 (Network)
@@ -107,6 +120,11 @@
 - **NAT (Network Address Translation)**
   - uses one public IP addr to provide access to many private IP addrs
   - routers supporting NAT needs to track ongoing connections, & maintain a table translating network addrs between internal (generally private) & external (generally public) networks
+
+- **VPN (Virtual Private Network)**
+  - solution to ensure all data leaving / entering computer is protected from disclosure & alteration
+  - internet traffic will usually be routed all over the VPN tunnel
+  - accessed services and web apps don't see your public IP addr but the VPN server's, and local ISP only see encrypted traffic - cannot censor internet access
 
 ### Layer 4 (Transport)
 
@@ -134,12 +152,6 @@
 
 #### Remote Access
 
-- **SSH (Secure Shell)**: a cryptographic network protocol for secure communication between edvices
-  - encrypts data using crypto algorithms (e.g. [AES](#aes-advanced-encryption-system)) when sent over a network (e.g. Internet)
-  - often used when logging in remotely to a computer or server
-  - for `ssh` command usage see [`ssh`](linux_notes.md#ssh)
-
-
 - **TELNET (Teletype Network)**
   - a network protocol for remote terminal connection
   - can be used to connect to any server *listening on a TCP port number*
@@ -149,6 +161,19 @@
   - *Web server* - listens on **port 80**, serves web pages
     - `GET / HTTP/1.1` gets the host
     - `GET /web.html` gets the page
+
+- **SSH (Secure Shell)**
+  - a cryptographic network protocol for secure communication between edvices
+  - encrypts data using crypto algorithms (e.g. [AES](#aes-advanced-encryption-system)) when sent over a network (e.g. Internet)
+  - often used when logging in remotely to a computer or server
+  - some benefits:
+    > secure authentication - supports public key & two-factor auth
+    > confidentiality - OpenSSH provides end-to-end encryption & notifies you of new server keys to protect man-in-the-middle attacks
+    > integrity - cryptography protects integrity of traffic
+    > tunneling - creates a VPN-like connection to route other protocols through SSH
+    > X11 forwarding - allows unix-like gui application over the network
+  - for `ssh` command usage see [`ssh`](linux_notes.md#networks)
+
 
 #### Network Services
 
@@ -184,7 +209,6 @@
 - **HTTP (Hypertext Transfer Protocol)**
   - relies on TCP, usually TCP **port 80** and 443, sometimes 8080 and 8443
   - designed to retrieve web pages
-
 - **HTTPS**
   - HTTP over [TLS](#tls)
   1. TCP three-way handshake with target server
@@ -197,7 +221,15 @@
   - TCP **port 21**
   - higher speed than HTTP when all conditions equal
   - `ftp [ip]` -> log in -> `type ascii` -> `ls` / `get file.txt` downloads file to root
+- **FTPS**
+  - TCP **port 990**
+  - requires cert setup
   
+- **SFTP (SSH File Transfer Protocol)**
+  - TCP **port 22**
+  - part of the [SSH](#ssh-secure-shell) protocol suite
+  - `sftp username@hostname` to log in; use FTP commands to download/upload files
+
 - **SMTP (Simple Mail Transfer Protocol)**
   - TCP **port 25**
     - `HELO`/`EHLO` initiates SMTP session
@@ -205,6 +237,9 @@
     - `RCPT TO: <user@client.thm>` specifies recipient's email addr
     - `DATA` indicates beginning sending mail content
     - `.` send on newline to indicate end of email message
+- **SMTPS**
+  - TCP **port 465 & 587**
+  - SMTP + TLS
 
 - **POP3 (Post Office Protocol v3)**
   - TCP **port 110**
@@ -217,6 +252,9 @@
     - `RETR <message_number>` retrieves specified message
     - `DELE <message_number>` marks message for deletion
     - `QUIT` ends POP3 session & applies changes
+- **POP3S**
+  - TCP **port 995**
+  - POP3 + TLS
 
 - **IMAP (Internet Message Access Protocol)**
   - TCP **port 143**
@@ -227,6 +265,9 @@
     - `MOVE <sequence_set> <mailbox>` moves specified message to another mailbox
     - `COPY <sequence_set> <data_item_name>` copies specified message to another mailbox
     - `LOGOUT` logs out
+- **IMAPS**
+  - TCP **port 993**
+  - IMAP + TLS
 
 #### Security / Encryption
 
@@ -243,6 +284,10 @@
     > signed cert must be installed on host for host to confirm its validity
   - packets are encrypted, need access to private key
   - only changes HTTP; TCP and IP are not modified
+  - `chromium -- ssl-key-log-file =~/ssl-key.log`
+    - dumps TLS keys to ssl-key.log file
+    - the file will contain pre-master secrets for each SSL/TLS session Chrome initiates
+    - keys can be used to decrypt HTTPS traffic in Wireshark
 
 ## Routing Algorithms
 

@@ -109,6 +109,15 @@
     - e.g.          gobuster dns -d google.com -w ~/wordlists/subdomains.txt -i
     - e.g.          gobuster dir -u https://buffered.io -w ~/wordlists/shortlist.txt
 
+- **WireShark**
+  - an open-source cross-platform network packet analyser tool capable of investigating live traffic and inspecting packet captures (PCAP)
+  - can detect & troubleshoot network problems, detect security anomalies, investigate & learn protocol details
+  - not an IDS (Intrusion Detection System)
+  - https://tryhackme.com/room/wiresharkthebasics
+  - each packet consists of 5~7 layers (OSI Model)
+  - searching packets:
+    - need to know input type (Display filter, Hex, String, Regex) (case sensitivity can be toggled) & search field (packet list, packet details, packet bytes)
+
 ## Package Management Concepts
 
 - **APT (Advanced Package Tool)**
