@@ -132,15 +132,21 @@
 
 - `nmap`
   - stands for **Network Mapper**
-  - scans hosts and networks to discover open ports, running services, OS info, and firewall rules
+  - open source tool for network discovery and security auditing
+    - scans hosts and networks to discover open ports, running services, OS info, and firewall rules
   - useful for diagnostics, network mapping, and security auditing
+  - specifying targets:
+    - IP range with `-`
+    - IP subnet using `/` (i.e. `192.168.0.1/24` would be equivalent to `192.168.0.0-255`)
   - Common usage:
+    - `nmap -sn <ip-range>` – ping scan, shows which hosts are online
+      - displays MAC addr of hosts if connected to local network
     - `nmap -p 22 <ip>` – check if SSH port is open
     - `nmap <ip>` – quick scan of the most common 1000 TCP ports
     - `nmap -p- <ip>` – scan all 65535 TCP ports
     - `nmap -sV <ip>` – detect service versions
     - `nmap -O <ip>` – attempt OS detection
-    - `nmap -sn <ip-range>` – ping scan, shows which hosts are online
+    - `nmap -sL <ip>` - displays all targets to scan without actually scanning them
 
 - `nslookup [url]`
   - looks up the domain's IP addr
