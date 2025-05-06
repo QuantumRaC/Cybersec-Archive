@@ -105,6 +105,7 @@
   - allows translation from layer 3 to 2 addressing
   - finds MAC addr of IP addr
   - makes it possible to find MAC addr of another device on the Ethernet
+    - `arp-scan` only works if yoiur deviec is connected to the samenetwork (i.e. over Ethernet or Wifi)
     - originally Ethernet packets need MAC addr as destination & src
   - machine sends ARP request from MAC addr to broadcast MAC addr, to ask for the other to respond with its MAC addr
   - not encapsulated within UDP or IP packet; directly encapsulated within Ethernet frame
