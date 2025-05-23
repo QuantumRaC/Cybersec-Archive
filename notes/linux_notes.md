@@ -122,6 +122,36 @@
   - `ssh hostname` if username is same as logged-in username
   - argument `-X` required to support running graphical interfaces
   
+- `ssh-keygen`
+  - `-t <type>`  
+    - specify key type (`rsa`, `ed25519`, `ecdsa`, etc.)  
+    e.g. `ssh-keygen -t ed25519` → generates `id_ed25519` and `id_ed25519.pub`
+  - `-C <comment>`  
+  - attach a comment to the public key (often your email)  
+    e.g. `ssh-keygen -C "me@domain.com"` → appends comment to `.pub` file
+  - `-f <filename>`  
+  - define output file name (without extension)  
+    e.g. `ssh-keygen -f ~/.ssh/my_key` → generates `my_key` and `my_key.pub`
+  - `-N <passphrase>`  
+  - set a passphrase non-interactively  
+    e.g. `ssh-keygen -N "securepass"` → sets passphrase directly
+  - `-q`  
+  - quiet mode – suppress output  
+    e.g. `ssh-keygen -q -t rsa` → generates key silently
+  - `-y`  
+  - extract public key from a private key  
+    e.g. `ssh-keygen -y -f ~/.ssh/id_rsa` → prints public key to stdout
+  - `-e`  
+  - convert OpenSSH public key to RFC4716 format  
+    e.g. `ssh-keygen -e -f ~/.ssh/id_rsa.pub` → outputs RFC4716 format
+  - `-m <format>`  
+  - specify key format (`RFC4716`, `PKCS8`, `PEM`)  
+    e.g. `ssh-keygen -m PEM -f ~/.ssh/id_rsa` → saves key in PEM format
+  - `-l`  
+  - show fingerprint of a key file  
+    e.g. `ssh-keygen -l -f ~/.ssh/id_rsa.pub`  
+    → `2048 SHA256:abc...xyz me@domain.com (RSA)`
+
 - `telnet`
   - see [Telnet](network_notes.md#telnet)
 
