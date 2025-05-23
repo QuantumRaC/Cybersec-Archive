@@ -11,6 +11,7 @@
 - [Tools \& Packages](#tools--packages)
   - [Package Management Concepts](#package-management-concepts)
 - [Cyptography](#cyptography)
+  - [Encryption Basics](#encryption-basics)
 - [Cybersecurity Terms](#cybersecurity-terms)
   - [Industry Terms and Systems](#industry-terms-and-systems)
   - [Adversarial Techniques](#adversarial-techniques)
@@ -144,7 +145,46 @@
 
 # Cyptography
 
-- **AES (Advanced Encryption System)**: ==TODO==
+## Encryption Basics
+
+- Authentication: confirming the identity of the other person
+- Authenticity: that the message genuinely comes from a specific sender
+- Integrity: words are not altered or tampered with
+- Confidentiality: only the authorized parties can access the data
+
+- Symmetric Encryption:
+  - aka private key cryptography
+  - secrecy of key can be a challenge esp with many recipients
+  - examples: DES, 3DES, AES
+
+- Asymmetric Encryption:
+  - aka public key cryptography
+  - tends to be slower and larger keys
+  - based on math problems that are easy to compute in one direction but extremely difficult to reverse
+  - examples: RSA, Diffie-Hellman, ECC (Elliptic Curve cryptography)
+
+- **Key exchange**: a method that allows two parties to establish a shared secret over an insecure comms channel without requiring a pre-existing shared secret and without an observer being able to get this key
+  - the key can be used for symmetric encryption in subsequent comms
+  - example: Diffie-Hellman
+
+- **DES (Data Encryption Standard)**
+  - symmetric encryption that uses a 56-bit key
+  - deprecated in 1999
+  - **3DES** - DES applied 3 times; 168-bit key. Deprecated in 2019, replaced by AES
+
+- **AES (Advanced Encryption System)**:
+  - symmetric encryption that uses 128, 192 or 256 bit keys
+  - adopted in 2001
+
+- **RSA**
+  - public key encryption with an encryption key and a decryption key
+  - used for digital signatures, key transport, auth, etc.
+  - based on mathematical difficulty of factoring a large number
+  - tools for breaking RSA: https://github.com/RsaCtfTool/RsaCtfTool & https://github.com/ius/rsatool 
+  - by default, SSH keys are RSA keys
+
+- **Diffie-Hellman Key Exchange**
+  - key exchange method; used for key agreement
 
 # Cybersecurity Terms
 

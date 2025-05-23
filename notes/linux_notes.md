@@ -135,18 +135,43 @@
   - open source tool for network discovery and security auditing
     - scans hosts and networks to discover open ports, running services, OS info, and firewall rules
   - useful for diagnostics, network mapping, and security auditing
+  - *when `nmap <ip>` with local user privilege, does connect scan*
+  - **Verbosity** - `-v`, `-vv`, `-vvv` etc. to produce more verbose output
+    - `-d` for debugging level output; max `-d9`
   - specifying targets:
     - IP range with `-`
     - IP subnet using `/` (i.e. `192.168.0.1/24` would be equivalent to `192.168.0.0-255`)
+  - scans most common 1000 ports by default.
+    - `-F` scans 100 to be faster
+    - `-p[range]` allows scanning a specific range (e.g. `-p10-1024`, `-p-25`; `-p-` or `-p1-65535` scans all)
   - Common usage:
-    - `nmap -sn <ip-range>` – ping scan, shows which hosts are online
+    - `-sn <ip-range>` – *ping scan*, shows which hosts are online
       - displays MAC addr of hosts if connected to local network
-    - `nmap -p 22 <ip>` – check if SSH port is open
-    - `nmap <ip>` – quick scan of the most common 1000 TCP ports
-    - `nmap -p- <ip>` – scan all 65535 TCP ports
-    - `nmap -sV <ip>` – detect service versions
-    - `nmap -O <ip>` – attempt OS detection
-    - `nmap -sL <ip>` - displays all targets to scan without actually scanning them
+    - `-sL <ip>` - *displays all targets* to scan without actually scanning them
+    - **Port scans**
+      - `-sT <ip>` - tests for open ports: *connect scans* by trying to complete the TCP handshake with every target TCP port
+      - `-sS <ip>` - *SYN scan* (only sends a TCP SYN packet and doesn't complete the handshake); more stealthy
+      - `-sU <ip>` - *UDP scan*
+      - *we can use `-Pn` to ask Nmap to treat all hosts as online and port scan every host* (sometimes the target host doesn't reply to ICMP requests during host discovery and Nmap will mark this host as down)
+  - **Detection**
+    - `-o <ip>` – enables OS detection
+    - `-sV <ip>` – enables service version detection
+    - `-A` - altogether enables OS detection, version scanning, and traceroute, etc.
+  - **Timing** - to prevent triggering IDS
+    - paranoid (0), sneaky (1), polite (2), normal(default) (3), aggressive (4), insane (5) - slowest to fastest
+      - different waiting time when moving from port to port
+    - i.e. `-T0`, `-T 0` or `-T paranoid`
+    - Parallelism
+      - `--min-parallelism <numprobes>` & `--max-parallelism <numprobes>` - sets min/max simultaneously active TCP and UDP port probes
+        - by default auto managed (i.e. less probes for poor network)
+    - Rate
+      - `--min-rate <number>` & `--max-rate <number>` - controls min and max rates that nmap sends packets in packets per second
+    - `--host-timeout <time>` - specifies max time you are willing to wait
+  - **Saving results**
+    - `-oN <filename>` - normal output
+    - `-oX <filename>` - XML output
+    - `-oG <filename>` - `grep`able output (for `grep` and `awk`)
+    - `-oA <basename>` - output in all major formats (extensions nmap, xml, and gnmap)
 
 - `nslookup [url]`
   - looks up the domain's IP addr
