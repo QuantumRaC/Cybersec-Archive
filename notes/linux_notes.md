@@ -52,13 +52,18 @@
 - `grep`
     - e.g. `grep "word" name.txt` searches for "word" within name.txt
     - outputs selected entry with "word" highlighted
+    - `-v`  invert match - shows everything that doesn't match the keyword
 
 - `wc`
     - e.g. `wc name.txt` returns wordcound of name.txt
     - outputs `100 name.txt`
     - word count
 
-
+- `ln`
+  - `ln -s linked_path new_path` links new_path to original file
+  - creates symbolic links
+    - hard link: when multiple files are all addresses that indexes the same data
+    - soft link (symbolic link): contains the original file name; when accessed, Linux realizes that it is a symbolic link and reads the original file name, and typically automatically accesses that file.
 
 # Processes
 - for concept see [processes](notes.md#processes) 
