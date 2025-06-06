@@ -10,6 +10,7 @@
 - [Modules](#modules)
 - [Package Management](#package-management)
 - [Files \& Directories](#files--directories)
+- [Tools](#tools)
 
 # Linux Notes & Resources
 
@@ -383,3 +384,10 @@
   - volatile and used to store data that only needs to be accessed once or twice
   - contents cleared out once computer restarts
   - **any user can write to this folder by default**; good place to store things like enumeration scripts
+
+# Tools
+
+- **John the Ripper**
+  - `john [file]` cracks a leaked `/etc/shadow` file
+    - `--show` displays passwords reliably
+    - `/etc/shadow` is where passwords to user accounts are stored; usually root-protected but when backips leak they can be cracked
