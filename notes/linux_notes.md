@@ -20,6 +20,20 @@
   - `ls -a` (`-a` is short for `--all`) shows hidden folders (those that beging with `.`)
   - `-h` for human readeable format
   - `-l` for long output including read-write permissions and dates
+    - e.g.
+        hacker@dojo:~$ ls -l
+        total 4
+        -rw-r--r-- 1 hacker hacker    0 May 22 13:42 college_file
+        drwxr-xr-x 2 hacker hacker 4096 May 22 13:42 pwn_directory
+      - file type
+        - first character - file type; `d` - directory, `-` - normal file
+      - permissions
+        - 3 characters for owner user permission
+        - 3 for group (that owns the file)
+        - 3 for all other (users and groups) access
+      - ownership information
+        - user that owns the file
+        - group that owns the file
 
 - `touch`
   - `touch newFile` creates newFile under current dir
@@ -71,6 +85,14 @@
   - `NAME=$(cat /flag)` reads the output of the function into the variable
   - `read -p "INPUT PROMPT: " NAME` reads the input after INPUT PROMPT into NAME
 
+- `tr`
+  - `echo TEXT | tr T N` translates TEXT to NEXT
+  - `echo TEXT | tr -d E` translates TEXT to TXT
+
+- `cut`
+  - `cut -d " " -f 1 input.txt` cuts the 1st column of input.txt by delimiter " "
+
+
 # Processes
 - for concept see [processes](notes.md#processes) 
 
@@ -78,6 +100,10 @@
   - provides list of running processes as current user's session
   - additional info (status code, session, CPU usage time, name of command being executed)
   - `ps aux` allows viewing processes run by other users & those that don't run from a session (i.e. system processes)
+  - STAT
+    - `S` - sleeping while waiting for input
+    - `T` - suspended
+    - `R` - actively running
 
 - `top`
   - real-time stats about processes running on system
@@ -90,14 +116,18 @@
     - `SIGKILL` kills and doesn't do any cleanup
     - `SIGSTOP` stops / suspends a process
 
+- Ctrl-C interrupts processes
+- Ctrl-Z suspends processes
+- `fg`
+  - brings the background process back into use (foreground) on the terminal
+
 - `systemctl`
   - allows interaction with the systemd process / daemon
   - `systemctl [option] [service]`
     - options: `start`, `stop`, `enable`, `disable`
     - `start` and `stop` switches it on and off immediately but does not affect auto-start at boot
     - `enable` and `disable` doesn't immediately switch it on and off but enables / disables auto-start at boot
-- `fg`
-  - brings the background process back into use (foreground) on the terminal
+
 
 - `crontab`
   - used to schedule repetitive tasks via the `cron` daemon

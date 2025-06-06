@@ -253,3 +253,35 @@ Shell Variables
     hacker@variables~reading-files:~$ read PWN < /challenge/read_me
     You've set the PWN variable properly! As promised, here is the flag:
     pwn.college{4P8uMg8JNq_PYiblMkOgMwg1lpl.QXwIDO0wiNxQjMyEzW}
+
+
+Data Manip
+5. Extracting specific sections of text
+
+    Sometimes, you want to grab specific columns of data, such as the first column, the third column, or the 42nd column. For this, there"s the cut command.
+
+    For example, imagine that you have the following data file:
+
+    hacker@dojo:~$ cat scores.txt
+    hacker 78 99 67
+    root 92 43 89
+    hacker@dojo:~$
+    You could use cut to extract specific columns:
+
+    hacker@dojo:~$ cut -d " " -f 1 scores.txt
+    hacker
+    root
+    hacker@dojo:~$ cut -d " " -f 2 scores.txt
+    78
+    92
+    hacker@dojo:~$ cut -d " " -f 3 scores.txt
+    99
+    43
+    hacker@dojo:~$
+    The -d argument specifies the column delimiter (how columns are separated). In this case, it"s a space character. Of course, it has to be in quotes here so that the shell knows that the space is an argument rather than a space separating other arguments! The -f argument specifies the field number (which column to extract).
+
+    In this challenge, the /challenge/run program will give you a bunch of lines with random numbers and single characters (characters of the flag) as columns. Use cut to extract the flag characters, then pipe them to tr -d "\n" (like the previous level!) to join them together into a single line. Your solution will look something like /challenge/pwn | cut ??? | tr ???, with the ??? filled out.
+
+    - my solution:
+    hacker@data~extracting-specific-sections-of-text:~$ /challenge/run | cut -d " " -f 2 | tr -d "\n"
+    pwn.college{Ih--1SKTZurHUMyDsEBUFXS7Vul.01NxEzNxwiNxQjMyEzW}
