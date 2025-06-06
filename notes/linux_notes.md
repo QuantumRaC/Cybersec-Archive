@@ -50,7 +50,7 @@
 
 - `chmod`
   - `chmod [OPTIONS] MODE FILE`
-  - MODE: WHO+/-WHAT
+  - MODE: WHO+/-/=WHAT
     - WHO
       - `u` for owning user
       - `g` for owning group
@@ -60,6 +60,7 @@
       - `w` for write
       - `r` for read
       - `x` for execute
+        - `s` means the executable with SUID; regardless of user running the program, as long as they have executable permissions the program will exectue as the owner user
 
 - `touch`
   - `touch newFile` creates newFile under current dir
