@@ -194,3 +194,62 @@ Practicing Piping
     Congratulations, you have learned a redirection technique that even experts 
     struggle with! Here is your flag:
     pwn.college{QOVXXMJTSSdv27ALPDlQFxiBz1g.QXxQDM2wiNxQjMyEzW}
+
+Shell Variables
+5. Printing exported variables
+
+    There are multiple ways to access variables in bash. echo was just one of them, and we'll now learn at least one more in this challenge.
+
+    Try the env command: it'll print out every exported variable set in your shell, and you can look through that output to find the FLAG variable!
+    - my solution
+    hacker@variables~printing-exported-variables:~$ env
+    SHELL=/run/dojo/bin/bash
+    COLORTERM=truecolor
+    TERM_PROGRAM_VERSION=1.91.1
+    HOSTNAME=variables~printing-exported-variables
+    VSCODE_PROXY_URI=https://pwn.college/workspace/code/proxy/{{port}}/
+    PWD=/home/hacker
+    MANPATH=/run/dojo/share/man:
+    DOJO_AUTH_TOKEN=c200a4caa4ce87bb03fe1a37a982aff26b5cffeaf082c2d5b1770ccba1f623b9
+    VSCODE_GIT_ASKPASS_NODE=/nix/store/2djgcjvx3c183zcdprylsx9p1a6rmwwk-nodejs-20.18.3/bin/node
+    ...
+    hacker@variables~printing-exported-variables:~$ env | grep FLAG
+    FLAG=pwn.college{w_8cHqS4-q6SygKAQ9sgfj-z3VL.QX4UTN0wiNxQjMyEzW}
+
+6. Storing command output
+    In the course of working with the shell, you will often want to store the output of some command into a variable. Luckily, the shell makes this quite easy using something called Command Substitution! Observe:
+
+    hacker@dojo:~$ FLAG=$(cat /flag)
+    hacker@dojo:~$ echo "$FLAG"
+    pwn.college{blahblahblah}
+    hacker@dojo:~$
+    Neat! Now, you practice. Read the output of the /challenge/run command directly into a variable called PWN, and it will contain the flag!
+
+    - my solution
+    hacker@variables~storing-command-output:~$ PWN=$(/challenge/run)
+    Congratulations! You have read the flag into the PWN variable. Now print it out 
+    and submit it!
+    hacker@variables~storing-command-output:~$ echo $PWN
+    pwn.college{Y2qCi1ka7M4hE8lOK81-eWw7xMW.QX1cDN1wiNxQjMyEzW}
+
+8. Reading files
+    Often, when shell users want to read a file into an environment variable, they do something like:
+
+    hacker@dojo:~$ echo "test" > some_file
+    hacker@dojo:~$ VAR=$(cat some_file)
+    hacker@dojo:~$ echo $VAR
+    test
+    This works, but it represents what grouchy hackers call a "Useless Use of Cat". That is, running a whole other program just to read the file is a waste. It turns out that you can just use the powers of the shell!
+
+    Previously, you read user input into a variable. You've also previously redirected files into command input! Put them together, and you can read files with the shell.
+
+    hacker@dojo:~$ echo "test" > some_file
+    hacker@dojo:~$ read VAR < some_file
+    hacker@dojo:~$ echo $VAR
+    test
+    What happened there? The example redirects some_file into the standard input of read, and so when read reads into VAR, it reads from the file! Now, use that to read /challenge/read_me into the PWN environment variable, and we'll give you the flag! The /challenge/read_me will keep changing, so you'll need to read it right into the PWN variable with one command!
+
+    - my solution:
+    hacker@variables~reading-files:~$ read PWN < /challenge/read_me
+    You've set the PWN variable properly! As promised, here is the flag:
+    pwn.college{4P8uMg8JNq_PYiblMkOgMwg1lpl.QXwIDO0wiNxQjMyEzW}

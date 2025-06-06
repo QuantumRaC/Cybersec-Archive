@@ -65,6 +65,12 @@
     - hard link: when multiple files are all addresses that indexes the same data
     - soft link (symbolic link): contains the original file name; when accessed, Linux realizes that it is a symbolic link and reads the original file name, and typically automatically accesses that file.
 
+- shell variables
+  - `echo $NAME` prints out the variable with name NAME
+  - `NAME=value` sets variable NAME to value
+  - `NAME=$(cat /flag)` reads the output of the function into the variable
+  - `read -p "INPUT PROMPT: " NAME` reads the input after INPUT PROMPT into NAME
+
 # Processes
 - for concept see [processes](notes.md#processes) 
 
