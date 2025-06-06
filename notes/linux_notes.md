@@ -26,14 +26,40 @@
         -rw-r--r-- 1 hacker hacker    0 May 22 13:42 college_file
         drwxr-xr-x 2 hacker hacker 4096 May 22 13:42 pwn_directory
       - file type
-        - first character - file type; `d` - directory, `-` - normal file
+        - first character - file type; `d` - directory, `-` - normal file; `c` for character device (device file, sych as display output)
       - permissions
         - 3 characters for owner user permission
         - 3 for group (that owns the file)
         - 3 for all other (users and groups) access
+        > `r` - user/group/other can read the file (or list the directory)
+        > `w` - user/group/other can modify the files (or create/delete files in the directory)
+        > `x` - user/group/other can execute the file as a program (or can enter the directory, e.g., using `cd`)
+        > `-` - nothing 
       - ownership information
         - user that owns the file
         - group that owns the file
+
+- `id`
+  - shows user name and id and group names and ids of current user
+
+- `chown`
+  - `chown [username] [file]` changes ownership of file
+  - typically can only be invoked by the root user
+- `chgrp`
+  - `chgrp [username] [file]` changes group ownership
+
+- `chmod`
+  - `chmod [OPTIONS] MODE FILE`
+  - MODE: WHO+/-WHAT
+    - WHO
+      - `u` for owning user
+      - `g` for owning group
+      - `o` for others
+      - `a` for all
+    - WHAT
+      - `w` for write
+      - `r` for read
+      - `x` for execute
 
 - `touch`
   - `touch newFile` creates newFile under current dir
