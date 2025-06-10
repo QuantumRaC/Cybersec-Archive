@@ -459,3 +459,63 @@ NOTE: Needless to say, this will render your environment unusable. Just restart 
    - my solution (script - /home/hacker/fork_bomb)
         #!/bin/bash
         :(){ :|:& };:
+
+# HTTP
+
+5. HTTP (netcat)
+
+    You've learned how to HTTP (though, of course, you've probably been HTTPing for most of your life!). Now, let's learn how to really HTTP. The HTTP protocol itself, as in the exact data that is sent over the network, is actually surprisingly human-readable and human-writable. In this challenge, you'll learn to write it. This challenge requires you to use a program called "netcat" (command name: nc), which is a simple program that communicates over a network connection. Netcat's basic usage involves two arguments: the hostname (where the server is listening on, such as www.google.com for Google), and the port (the standard HTTP port is 80).
+
+    When it starts up, netcat connects to the server and gives you a raw channel to communicate with it. You'll be talking directly with the web server, with no intermediary! How cool is that?
+
+    Recall the lectures, find the format of an HTTP request, and make a GET request to the / endpoint (we'll do more endpoints later) to get the flag!
+
+    HINT: Can't tell if netcat is connecting or not? Use the -v flag to turn on some verbosity!
+
+    HINT: Typed your GET request and nothing happens after you hit Enter? HTTP requests are terminated by two newlines. Try hitting Enter again!
+
+    - my solution:
+
+    hacker@talking-web~http-netcat:~$ nc -v  challenge.localhost 80
+    Connection to challenge.localhost (127.0.0.1) 80 port [tcp/http] succeeded!
+    GET / HTTP/1.1  
+    Host: challenge.localhost
+
+    HTTP/1.1 200 OK
+    Server: Werkzeug/3.0.6 Python/3.8.10
+    Date: Tue, 10 Jun 2025 06:33:27 GMT
+    Content-Type: text/html; charset=utf-8
+    Content-Length: 84
+    X-Flag: pwn.college{Aqge7Wg_5orEllQUUrH3X3w8oAP.QX5YjMzwiNxQjMyEzW}
+    Connection: close
+
+    <html><head><title>Talking Web</title></head><body><h1>Great job!</h1></body></html>
+    hacker@talking-web~http-netcat:~$
+
+    - specifying the HTTP version indicates certain headers and behaviors - this version of HTTP requires the host header to be present in requests
+    - host header specifies the domain name of the server you're trying to reach - especially important for servers that host multiple domains (virtual hosting) because it tells the server exactly which domain you're interested in
+  
+7. HTTP (python)
+
+    Unfortunately, most of the modern internet runs on the infrastructure of a handful of companies, and a given server run by these companies might be responsible for serving up websites for dozens of different domain names. How does the server decide which website to serve? The Host header.
+
+    The Host header is a request header sent by the client (e.g., browser, curl, etc), typically equal to the domain name entered in the HTTP request. When you go to https://pwn.college, your browser automatically sets the Host header to pwn.college, and thus our server knows to give you the pwn.college website, rather than something else.
+
+    Until now, the challenges you've been interacting with have been Host-agnostic. Now they start checking. Set the right Host header and get the flag!
+
+    - my solution
+    - get-flag.py:
+        GNU nano 8.2                      get-flag.py                                 
+        import requests
+        headers = {"Host": "0xf.at"}
+        r = requests.get('http://challenge.localhost:80/progress', headers = headers)
+        print(r.headers)
+        print(r.text)
+
+
+
+
+
+
+
+
