@@ -636,6 +636,41 @@ NOTE: Needless to say, this will render your environment unusable. Just restart 
         pwn.college{EUBgsEqRRNiB6Qw6IR4E8KBQktw.QXxAzMzwiNxQjMyEzW}
         * Closing connection 0
 
+30. Listening Web
+
+You've been staring at web server code all this time and figuring out how to speak to it. Now, let's learn to listen.
+
+In this level, you will write a simple server that'll receive the request for the flag! Simply copy the server code from, say, the very first module, remove anything extra, and build a web server that'll listen on port 1337 (instead of 80 --- you can't listen on port 80 as a non-administrative user) and on hostname localhost. When you're ready, run /challenge/client, and it will launch an internal web browser and visit http://localhost:1337/ with the flag!
+
+    - my solution:
+        hacker@talking-web~listening-web:~$ cat my-server
+        #!/opt/pwn.college/python
+
+        import flask
+        import os
+
+        app = flask.Flask(__name__)
+
+
+        @app.route("/", methods=["GET"])
+        def challenge():
+            return f"""
+                <html>
+                <head><title>Talking Web</title></head>
+                <body>
+                <h1>Challenge Complete!</h1>
+                <p>{open("/flag").read().strip()}</p>
+                </body>
+                </html>
+            """
+
+
+        app.run("localhost", 1337)
+
+        hacker@talking-web~listening-web:~$ /challenge/client
+        Visiting http://localhost:1337 (with the flag).
+        Query sent! Go see if the flag is in your logs.
+
 
 
 # Intro to Cybersecurity
