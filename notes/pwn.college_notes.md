@@ -460,6 +460,55 @@ NOTE: Needless to say, this will render your environment unusable. Just restart 
         #!/bin/bash
         :(){ :|:& };:
 
+
+# Program Misuse
+
+11. `od`
+
+    Requires you to understand their output to derive the flag from it!
+
+    - my solution:
+            bash-5.2$ od -An -v -t x1 /flag | tr -d ' \n' | xxd -r -p
+            pwn.college{w06wwdxgKGcuRlkSYYBfgC_4o6j.dNTNxwiNxQjMyEzW}
+    - Explanation:
+        `od -An -v -t x1 /flag`:
+            `od` stands for *octal dump*, but it's actually a tool that can output binary data in multiple formats, not just octal.
+
+            * `-t x1`: This tells `od` to display the file content in hexadecimal (`x`) format, showing 1 byte per value*(`1`).
+
+            * For example, the letter `A` (ASCII 65) would be shown as `41`.
+            * `-v`: Verbose mode; ensures that all lines are printed, even if the file has long sequences of repeated bytes.
+            * `-An`: "Address none" — disables the default left-hand column that displays the byte offset.
+
+            What you get:
+            A stream of hex bytes, one for each byte in the file, like this:
+            `68 65 6c 6c 6f 0a`
+
+        This represents the string `"hello\n"`.
+
+        `tr -d ' \n'`:
+            `tr` stands for translate, but when used with `-d`, it deletes characters from input.
+            * `-d ' \n'`: Deletes all spaces and newline characters.
+            What this does:
+            It turns the spaced hex output from `od`:
+            `68 65 6c 6c 6f 0a`
+            into a **compact hex string**:
+            `68656c6c6f0a`
+
+        `xxd -r -p`:
+            `xxd` is a tool that can both generate and reverse hex dumps.
+
+            * `-r`: Reverses the process — from hex back to binary.
+            * `-p`: Specifies *plain* hex format (no addresses or structured formatting).
+
+            What it does:
+            It reads the compact hex string:
+            `68656c6c6f0a`
+
+            And converts it back to the original binary data, byte-for-byte — in this case, producing the raw string `hello\n`.
+
+
+
 # HTTP
 
 5. HTTP (netcat)
