@@ -672,6 +672,334 @@ In this level, you will write a simple server that'll receive the request for th
         Query sent! Go see if the flag is in your logs.
 
 
+# SQL
+
+4. Exclusionary Filtering
+
+    Here, we'll randomly tag the flag. Can you still filter it out?
+
+    HINT: It might be easier to exclude the garbage data with your filter rather than include the flag data.
+
+    - my solution:
+        hacker@sql-playground~exclusionary-filtering:~$ cat /challenge/sql
+        #!/opt/pwn.college/python
+
+        import sys
+        import string
+        import random
+        import sqlite3
+        import tempfile
+
+
+        '# Don't panic about the TemporaryDB class. It simply implements a temporary database
+        '# in which this application can store data. You don't need to understand its internals,
+        '# just that it processes SQL queries using db.execute().
+        class TemporaryDB:
+            def __init__(self):
+                self.db_file = tempfile.NamedTemporaryFile("x", suffix=".db")
+
+            def execute(self, sql, parameters=()):
+                connection = sqlite3.connect(self.db_file.name)
+                connection.row_factory = sqlite3.Row
+                cursor = connection.cursor()
+                result = cursor.execute(sql, parameters)
+                connection.commit()
+                return result
+
+
+        db = TemporaryDB()
+
+
+        def random_word(length):
+            return "".join(random.sample(string.ascii_letters * 10, length))
+
+
+        flag = open("/flag").read().strip()
+
+        '# https://www.sqlite.org/lang_createtable.html
+        db.execute("""CREATE TABLE flags AS SELECT 1 as flag_tag, ? as flag""", [random_word(len(flag))])
+        '# https://www.sqlite.org/lang_insert.html
+        for i in range(random.randrange(5, 42)):
+            db.execute("""INSERT INTO flags VALUES(1, ?)""", [random_word(len(flag))])
+        db.execute("""INSERT INTO flags VALUES(?, ?)""", [random.randrange(1337, 313371337), flag])
+
+
+        for i in range(random.randrange(5, 42)):
+            db.execute("""INSERT INTO flags VALUES(1, ?)""", [random_word(len(flag))])
+
+        '# HINT: https://www.sqlite.org/lang_expr.html
+        for _ in range(1):
+            query = input("sql> ")
+
+            try:
+                results = db.execute(query).fetchall()
+            except sqlite3.Error as e:
+                print("SQL ERROR:", e)
+                sys.exit(1)
+
+            if len(results) == 0:
+                print("No results returned!")
+                sys.exit(0)
+
+            if len(results) > 1:
+                print("You're not allowed to read this many rows!")
+                sys.exit(1)
+            if len(results[0].keys()) > 1:
+                print("You're not allowed to read this many columns!")
+                sys.exit(1)
+            print(f"Got {len(results)} rows.")
+            for row in results:
+                print(f"- { { k:row[k] for k in row.keys() } }")
+
+        hacker@sql-playground~exclusionary-filtering:~$ /challenge/sql
+        sql> SELECT flag FROM flags WHERE flag_tag >= 1337
+        Got 1 rows.
+        - {'flag': 'pwn.college{UoHvahSIi04eB3RITz5HyV3fjqf.0lMwgDNxwiNxQjMyEzW}'}
+
+6. Filtering on expressions
+
+    Let's move on to more advanced filtering. We got rid of the flag tag in this challenge, and you'll need to filter on the actual values of the flag data! Luckily, SQLite (and all SQL engines in general) provide some functions for working with strings, and you'll use the substr function here. substr(some_column, start, length) extracts length characters starting from start (the first character is at position 1, not 0 as it would be in a sane language) of column some_column. You can use the result of this anywhere the query accepts expressions, such as in the WHERE clause to compare the resulting value against a string as in the previous challenge!
+
+    - my solution:
+
+        hacker@sql-playground~filtering-on-expressions:~$ cat /challenge/sql
+        #!/opt/pwn.college/python
+
+        import sys
+        import string
+        import random
+        import sqlite3
+        import tempfile
+
+
+        `# Don't panic about the TemporaryDB class. It simply implements a temporary database
+        `# in which this application can store data. You don't need to understand its internals,
+        `# just that it processes SQL queries using db.execute().
+        class TemporaryDB:
+            def __init__(self):
+                self.db_file = tempfile.NamedTemporaryFile("x", suffix=".db")
+
+            def execute(self, sql, parameters=()):
+                connection = sqlite3.connect(self.db_file.name)
+                connection.row_factory = sqlite3.Row
+                cursor = connection.cursor()
+                result = cursor.execute(sql, parameters)
+                connection.commit()
+                return result
+
+
+        db = TemporaryDB()
+
+
+        def random_word(length):
+            return "".join(random.sample(string.ascii_letters * 10, length))
+
+
+        flag = open("/flag").read().strip()
+
+        `# https://www.sqlite.org/lang_createtable.html
+        db.execute("""CREATE TABLE assets AS SELECT ? as record""", [random_word(len(flag))])
+        `# https://www.sqlite.org/lang_insert.html
+        for i in range(random.randrange(5, 42)):
+            db.execute("""INSERT INTO assets VALUES(?)""", [random_word(len(flag))])
+        db.execute("""INSERT INTO assets VALUES(?)""", [flag])
+
+
+        for i in range(random.randrange(5, 42)):
+            db.execute("""INSERT INTO assets VALUES(?)""", [random_word(len(flag))])
+
+        `# HINT: https://www.sqlite.org/lang_corefunc.html#substr
+        for _ in range(1):
+            query = input("sql> ")
+
+            try:
+                results = db.execute(query).fetchall()
+            except sqlite3.Error as e:
+                print("SQL ERROR:", e)
+                sys.exit(1)
+
+            if len(results) == 0:
+                print("No results returned!")
+                sys.exit(0)
+
+            if len(results) > 1:
+                print("You're not allowed to read this many rows!")
+                sys.exit(1)
+            if len(results[0].keys()) > 1:
+                print("You're not allowed to read this many columns!")
+                sys.exit(1)
+            print(f"Got {len(results)} rows.")
+            for row in results:
+                print(f"- { { k:row[k] for k in row.keys() } }")
+
+
+        hacker@sql-playground~filtering-on-expressions:~$ /challenge/sql
+        sql> SELECT record FROM assets WHERE substr(record, 1, 3) = 'pwn'
+        Got 1 rows.
+        - {'record': 'pwn.college{AkQvrH3VKSigWX6RRRnwP4W5YBT.0FNwgDNxwiNxQjMyEzW}'}
+
+7. SELECTing expressions
+
+    Functionality like substr isn't just for filtering: you can also SELECT expressions such as these (in place of or in addition to where you typically specify columns)! This is super handy when you don't want (or, in the case of this challenge, cannot retrieve) all the data, but just want the result of some computation on your data. In this case, the challenge will simply not let you read the whole flag. Can you read it piecemeal?
+    - my solution:
+
+        hacker@sql-playground~selecting-expressions:~$ cat /challenge/sql
+        #!/opt/pwn.college/python
+
+        import sys
+        import string
+        import random
+        import sqlite3
+        import tempfile
+
+
+        `# Don't panic about the TemporaryDB class. It simply implements a temporary database
+        `# in which this application can store data. You don't need to understand its internals,
+        `# just that it processes SQL queries using db.execute().
+        class TemporaryDB:
+            def __init__(self):
+                self.db_file = tempfile.NamedTemporaryFile("x", suffix=".db")
+
+            def execute(self, sql, parameters=()):
+                connection = sqlite3.connect(self.db_file.name)
+                connection.row_factory = sqlite3.Row
+                cursor = connection.cursor()
+                result = cursor.execute(sql, parameters)
+                connection.commit()
+                return result
+
+
+        db = TemporaryDB()
+
+        `# https://www.sqlite.org/lang_createtable.html
+        db.execute("""CREATE TABLE payloads AS SELECT ? as payload""", [open("/flag").read().strip()])
+
+        `# HINT: https://www.sqlite.org/lang_corefunc.html#substr
+        for _ in range(1):
+            query = input("sql> ")
+
+            try:
+                results = db.execute(query).fetchall()
+            except sqlite3.Error as e:
+                print("SQL ERROR:", e)
+                sys.exit(1)
+
+            if len(results) == 0:
+                print("No results returned!")
+                sys.exit(0)
+
+            for row in results:
+                for k in row.keys():
+                    if type(row[k]) in (str, bytes) and len(row[k]) > 5:
+                        print("You're not allowed to read this many characters!")
+                        sys.exit(1)
+            print(f"Got {len(results)} rows.")
+            for row in results:
+                print(f"- { { k:row[k] for k in row.keys() } }")
+
+        hacker@sql-playground~selecting-expressions:~$ touch rep-script
+        hacker@sql-playground~selecting-expressions:~$ nano rep-script
+                #!/bin/bash
+
+                # Assuming the flag length is known, let's say it's 30 characters for this example.
+                FLAG_LENGTH=61
+                CHUNK_SIZE=5
+
+                for (( i=1; i<=FLAG_LENGTH; i+=CHUNK_SIZE )); do
+                    # Run the SQL query to extract a substring
+                    /challenge/sql <<< "SELECT substr(payload, $i, $CHUNK_SIZE) FROM payloads;"
+                done
+
+        hacker@sql-playground~selecting-expressions:~$ chmod a+x rep-script
+        hacker@sql-playground~selecting-expressions:~$ ./rep-script
+        sql> Got 1 rows.
+        - {'substr(payload, 1, 5)': 'pwn.c'}
+        sql> Got 1 rows.
+        - {'substr(payload, 6, 5)': 'olleg'}
+        sql> Got 1 rows.
+        - {'substr(payload, 11, 5)': 'e{IX_'}
+        sql> Got 1 rows.
+        - {'substr(payload, 16, 5)': 'jMmFS'}
+        sql> Got 1 rows.
+        - {'substr(payload, 21, 5)': 'kIm2h'}
+        sql> Got 1 rows.
+        - {'substr(payload, 26, 5)': 'RZHva'}
+        sql> Got 1 rows.
+        - {'substr(payload, 31, 5)': 'BvAGS'}
+        sql> Got 1 rows.
+        - {'substr(payload, 36, 5)': 'RZYy.'}
+        sql> Got 1 rows.
+        - {'substr(payload, 41, 5)': '0VNwg'}
+        sql> Got 1 rows.
+        - {'substr(payload, 46, 5)': 'DNxwi'}
+        sql> Got 1 rows.
+        - {'substr(payload, 51, 5)': 'NxQjM'}
+
+10. Querying Metadata
+
+    In actual security scenarios, there are times where the attacker lacks certain information, such as the names of tables that they want to query! Luckily, every SQL engine has some way to query metadata about tables (though, confusingly, every engine does this differently!). SQLite uses a special sqlite_master table, in which it stores information about all other tables. Can you figure out the name of the table that contains the flag, and query it?
+
+    - my solution:
+
+    hacker@sql-playground~querying-metadata:~$ cat /challenge/sql
+    #!/opt/pwn.college/python
+
+    import sys
+    import string
+    import random
+    import sqlite3
+    import tempfile
+
+
+    `# Don't panic about the TemporaryDB class. It simply implements a temporary database
+    `# in which this application can store data. You don't need to understand its internals,
+    `# just that it processes SQL queries using db.execute().
+    class TemporaryDB:
+        def __init__(self):
+            self.db_file = tempfile.NamedTemporaryFile("x", suffix=".db")
+
+        def execute(self, sql, parameters=()):
+            connection = sqlite3.connect(self.db_file.name)
+            connection.row_factory = sqlite3.Row
+            cursor = connection.cursor()
+            result = cursor.execute(sql, parameters)
+            connection.commit()
+            return result
+
+
+    db = TemporaryDB()
+
+    table_name = "".join(random.sample(string.ascii_letters, 8))
+    db.execute(f"""CREATE TABLE {table_name} AS SELECT ? as detail""", [open("/flag").read().strip()])
+
+    `# HINT: https://www.sqlite.org/schematab.html
+    for _ in range(2):
+        query = input("sql> ")
+
+        try:
+            results = db.execute(query).fetchall()
+        except sqlite3.Error as e:
+            print("SQL ERROR:", e)
+            sys.exit(1)
+
+        if len(results) == 0:
+            print("No results returned!")
+            sys.exit(0)
+
+        if len(results[0].keys()) > 1:
+            print("You're not allowed to read this many columns!")
+            sys.exit(1)
+        print(f"Got {len(results)} rows.")
+        for row in results:
+            print(f"- { { k:row[k] for k in row.keys() } }")
+    hacker@sql-playground~querying-metadata:~$ /challenge/sql
+    sql> SELECT tbl_name FROM sqlite_master
+    Got 1 rows.
+    - {'tbl_name': 'MpJgxfYl'}
+    sql> SELECT detail FROM MpJgxfYl
+    Got 1 rows.
+    - {'detail': 'pwn.college{0yiMfWvOHK4wyn-k-uGjPCL1AUi.0FOwgDNxwiNxQjMyEzW}'}
+    hacker@sql-playground~querying-metadata:~$ 
 
 # Intro to Cybersecurity
 
