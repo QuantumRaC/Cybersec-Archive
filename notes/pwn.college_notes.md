@@ -508,6 +508,48 @@ NOTE: Needless to say, this will render your environment unusable. Just restart 
             And converts it back to the original binary data, byte-for-byte — in this case, producing the raw string `hello\n`.
 
 
+12. `hd`
+
+    Requires you to understand their output to derive the flag from it!
+
+    - my solution:
+        bash-5.2$ hd -v /flag | cut -c11-58 | tr -d '\n' | xxd -r -p
+        pwn.college{gQG5eK4uCB-GHWGJrImo2UjsFi-.dRTNxwiNxQjMyEzW}
+    - `cut -c11-58` keeps only characters in columns 11 to 58 (where the hex bytes are). 
+    - Otherwise, only a part of the flag can be printed out.
+
+14. `base32`
+
+    Requires you to understand their output to derive the flag from it!
+
+    - my solution:
+        bash-5.2$ base32 --help
+        Usage: base32 [OPTION]... [FILE]
+        Base32 encode or decode FILE, or standard input, to standard output.
+
+        With no FILE, or when FILE is -, read standard input.
+
+        Mandatory arguments to long options are mandatory for short options too.
+        -d, --decode          decode data
+        -i, --ignore-garbage  when decoding, ignore non-alphabet characters
+        -w, --wrap=COLS       wrap encoded lines after COLS character (default 76).
+                                Use 0 to disable line wrapping
+
+            --help     display this help and exit
+            --version  output version information and exit
+
+        The data are encoded as described for the base32 alphabet in RFC 4648.
+        When decoding, the input may contain newlines in addition to the bytes of
+        the formal base32 alphabet.  Use --ignore-garbage to attempt to recover
+        from any other non-alphabet bytes in the encoded stream.
+
+        GNU coreutils online help: <https://www.gnu.org/software/coreutils/>
+        Report base32 translation bugs to <https://translationproject.org/team/>
+        Full documentation at: <https://www.gnu.org/software/coreutils/base32>
+        or available locally via: info '(coreutils) base32 invocation'
+        bash-5.2$ base32 /flag | base32 -d
+        pwn.college{cqpDdklSp9Y1LGu3S6HytbgXag2.dZTNxwiNxQjMyEzW}
+        
 
 # HTTP
 
