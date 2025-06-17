@@ -550,6 +550,95 @@ NOTE: Needless to say, this will render your environment unusable. Just restart 
         bash-5.2$ base32 /flag | base32 -d
         pwn.college{cqpDdklSp9Y1LGu3S6HytbgXag2.dZTNxwiNxQjMyEzW}
         
+16. `split`
+
+    Requires you to understand their output to derive the flag from it!
+
+    - my solution:
+            bash-5.2$ split --help
+            Usage: split [OPTION]... [FILE [PREFIX]]
+            Output pieces of FILE to PREFIXaa, PREFIXab, ...;
+            default size is 1000 lines, and default PREFIX is 'x'.
+
+            With no FILE, or when FILE is -, read standard input.
+
+            Mandatory arguments to long options are mandatory for short options too.
+            -a, --suffix-length=N   generate suffixes of length N (default 2)
+                --additional-suffix=SUFFIX  append an additional SUFFIX to file names
+            -b, --bytes=SIZE        put SIZE bytes per output file
+            -C, --line-bytes=SIZE   put at most SIZE bytes of records per output file
+            -d                      use numeric suffixes starting at 0, not alphabetic
+                --numeric-suffixes[=FROM]  same as -d, but allow setting the start value
+            -x                      use hex suffixes starting at 0, not alphabetic
+                --hex-suffixes[=FROM]  same as -x, but allow setting the start value
+            -e, --elide-empty-files  do not generate empty output files with '-n'
+                --filter=COMMAND    write to shell COMMAND; file name is $FILE
+            -l, --lines=NUMBER      put NUMBER lines/records per output file
+            -n, --number=CHUNKS     generate CHUNKS output files; see explanation below
+            -t, --separator=SEP     use SEP instead of newline as the record separator;
+                                        '\0' (zero) specifies the NUL character
+            -u, --unbuffered        immediately copy input to output with '-n r/...'
+                --verbose           print a diagnostic just before each
+                                        output file is opened
+                --help     display this help and exit
+                --version  output version information and exit
+
+            The SIZE argument is an integer and optional unit (example: 10K is 10*1024).
+            Units are K,M,G,T,P,E,Z,Y (powers of 1024) or KB,MB,... (powers of 1000).
+
+            CHUNKS may be:
+            N       split into N files based on size of input
+            K/N     output Kth of N to stdout
+            l/N     split into N files without splitting lines/records
+            l/K/N   output Kth of N to stdout without splitting lines/records
+            r/N     like 'l' but use round robin distribution
+            r/K/N   likewise but only output Kth of N to stdout
+
+            GNU coreutils online help: <https://www.gnu.org/software/coreutils/>
+            Report split translation bugs to <https://translationproject.org/team/>
+            Full documentation at: <https://www.gnu.org/software/coreutils/split>
+            or available locally via: info '(coreutils) split invocation'
+
+            bash-5.2$ split /flag flag
+            bash-5.2$ cat flagaa
+            pwn.college{URrBonBOxDHwVm9YQv3tYUP-Ay6.dhTNxwiNxQjMyEzW}
+
+17. `gzip`
+
+Forces you to understand different archive formats!
+
+    - my solution
+            bash-5.2$ gzip --help
+            Usage: gzip [OPTION]... [FILE]...
+            Compress or uncompress FILEs (by default, compress FILES in-place).
+
+            Mandatory arguments to long options are mandatory for short options too.
+
+            -c, --stdout      write on standard output, keep original files unchanged
+            -d, --decompress  decompress
+            -f, --force       force overwrite of output file and compress links
+            -h, --help        give this help
+            -k, --keep        keep (don't delete) input files
+            -l, --list        list compressed file contents
+            -L, --license     display software license
+            -n, --no-name     do not save or restore the original name and timestamp
+            -N, --name        save or restore the original name and timestamp
+            -q, --quiet       suppress all warnings
+            -r, --recursive   operate recursively on directories
+                --rsyncable   make rsync-friendly archive
+            -S, --suffix=SUF  use suffix SUF on compressed files
+                --synchronous synchronous output (safer if system crashes, but slower)
+            -t, --test        test compressed file integrity
+            -v, --verbose     verbose mode
+            -V, --version     display version number
+            -1, --fast        compress faster
+            -9, --best        compress better
+
+            With no FILE, or when FILE is -, read standard input.
+
+            bash-5.2$ gzip /flag
+            bash-5.2$ gzip -dc /flag.gz
+            pwn.college{8vN0KV4Cmt6rScpKRmOaPKig7wz.dlTNxwiNxQjMyEzW}
 
 # HTTP
 
