@@ -460,6 +460,48 @@ NOTE: Needless to say, this will render your environment unusable. Just restart 
         #!/bin/bash
         :(){ :|:& };:
 
+# Dealing with Data
+
+8. Decoding Hex
+
+    Now, let's decode some hex, rather than encoding it. Can you figure out what the program needs?
+
+    NOTE: One of the toughest parts of this challenge is to send raw binary data to it stdin. There are a few ways to do this:
+
+    Write a python script to output data to stdout and pipe that to the challenge's stdin! This would involve using the raw byte interface to stdout: sys.stdout.buffer.write().
+    Write a python script to run the challenge and interact with it directly. Our recommendation is to use pwntools for this: import pwn, p = pwn.process("/challenge/runme"), p.write(), and p.readall(). A pwn.college alumni has created an awesome pwntools cheat sheet that you may reference.
+    For an increasingly hacky solution, echo -e -n "\xAA\xBB" will print out bytes to stdout that you can pipe.
+
+    - my solution
+
+            hacker@data-dealings~decoding-hex:~$ cat /challenge/runme
+            #!/usr/bin/exec-suid -- /bin/python3 -I
+
+            import sys
+
+
+            print("Enter the password:")
+            entered_password = sys.stdin.buffer.read1()
+            correct_password = b"e3a6d89fdcf0a8f3"
+
+            print(f"Read {len(entered_password)} bytes.")
+
+
+            correct_password = bytes.fromhex(correct_password.decode("l1"))
+
+
+            if entered_password == correct_password:
+                print("Congrats! Here is your flag:")
+                print(open("/flag").read().strip())
+            else:
+                print("Incorrect!")
+                sys.exit(1)
+            hacker@data-dealings~decoding-hex:~$ echo -e -n "\xe3\xa6\xd8\x9f\xdc\xf0\xa8\xf3" | /challenge/runme
+            Enter the password:
+            Read 8 bytes.
+            Congrats! Here is your flag:
+            pwn.college{cZxSLSMzJRYndechIYeFoZZJNx-.0lN1YDNxwiNxQjMyEzW}
+
 
 # Program Misuse
 
@@ -639,6 +681,45 @@ Forces you to understand different archive formats!
             bash-5.2$ gzip /flag
             bash-5.2$ gzip -dc /flag.gz
             pwn.college{8vN0KV4Cmt6rScpKRmOaPKig7wz.dlTNxwiNxQjMyEzW}
+
+18. `bzip2`
+
+    - my solution:
+            bash-5.2$ bzip2 --help
+            bzip2, a block-sorting file compressor.  Version 1.0.8, 13-Jul-2019.
+
+            usage: bzip2 [flags and input files in any order]
+
+            -h --help           print this message
+            -d --decompress     force decompression
+            -z --compress       force compression
+            -k --keep           keep (don't delete) input files
+            -f --force          overwrite existing output files
+            -t --test           test compressed file integrity
+            -c --stdout         output to standard out
+            -q --quiet          suppress noncritical error messages
+            -v --verbose        be verbose (a 2nd -v gives more)
+            -L --license        display software version & license
+            -V --version        display software version & license
+            -s --small          use less memory (at most 2500k)
+            -1 .. -9            set block size to 100k .. 900k
+            --fast              alias for -1
+            --best              alias for -9
+
+            If invoked as `bzip2', default action is to compress.
+                        as `bunzip2',  default action is to decompress.
+                        as `bzcat', default action is to decompress to stdout.
+
+            If no file names are given, bzip2 compresses or decompresses
+            from standard input to standard output.  You can combine
+            short flags, so `-v -4' means the same as -v4 or -4v, &c.
+
+            bash-5.2$ bzip2 /flag -v
+            /flag:    0.552:1, 14.483 bits/byte, -81.03% saved, 58 in, 105 out.
+            bash-5.2$ ls /
+            bin  boot  challenge  dev  etc  flag.bz2  home  lib  lib32  lib64  libx32  media  mnt  nix  opt  proc  root  run  sbin  srv  sys  tmp  usr  var
+            bash-5.2$ bzip2 -dc /flag.bz2
+            pwn.college{8K4e8KOfkxNUnIE7AGQs7-xXKbh.dBjNxwiNxQjMyEzW}
 
 # HTTP
 
