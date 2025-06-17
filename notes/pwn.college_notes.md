@@ -502,6 +502,57 @@ NOTE: Needless to say, this will render your environment unusable. Just restart 
             Congrats! Here is your flag:
             pwn.college{cZxSLSMzJRYndechIYeFoZZJNx-.0lN1YDNxwiNxQjMyEzW}
 
+9. Decoding practice
+
+    How many bases can you hold in your head? Here, we explore binary encoding of input.
+
+    - my solution
+
+        hacker@data-dealings~decoding-practice:~$ cat /challenge/runme
+        #!/usr/bin/exec-suid -- /bin/python3 -I
+
+        import sys
+
+
+        def decode_from_bits(s):
+            s = s.decode("latin1")
+            assert set(s) <= {"0", "1"}, "non-binary characters found in bitstream!"
+            assert len(s) % 8 == 0, "must enter data in complete bytes (each byte is 8 bits)"
+            return int.to_bytes(int(s, 2), length=len(s) // 8, byteorder="big")
+
+
+        print("Enter the password:")
+        entered_password = sys.stdin.buffer.read1()
+        correct_password = b"1100001011010100111010111111100010001001101111001111111010110111"
+
+        print(f"Read {len(entered_password)} bytes.")
+
+
+        correct_password = decode_from_bits(correct_password)
+
+
+        if entered_password == correct_password:
+            print("Congrats! Here is your flag:")
+            print(open("/flag").read().strip())
+        else:
+            print("Incorrect!")
+            sys.exit(1)
+        hacker@data-dealings~decoding-practice:~$ nano yesme.py
+
+        GNU nano 8.2                                                                                          yesme.py                                                                                                     
+        #!/usr/bin/env python3
+        import sys
+        sys.stdout.buffer.write(int("1100001011010100111010111111100010001001101111001111111010110111",2).to_bytes(8,'big'))
+
+        acker@data-dealings~decoding-practice:~$ ./yesme.py
+        ��������
+        hacker@data-dealings~decoding-practice:~$ ./yesme.py | /challenge/runme
+        Enter the password:
+        Read 8 bytes.
+        Congrats! Here is your flag:
+        pwn.college{YH3OB2uQPPVmUnabdIZVfJR7MpD.01N1YDNxwiNxQjMyEzW}
+
+
 
 # Program Misuse
 
