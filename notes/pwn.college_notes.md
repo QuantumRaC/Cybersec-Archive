@@ -1358,3 +1358,13 @@ HINT: If you're wondering why your solution isn't working, make sure what you're
     < 
     pwn.college{YFNeZ9Qv6G3Ayx3WpUe13_anpVN.QX3gzMzwiNxQjMyEzW}
     * shutting down connection #0
+
+12. SQLi 2
+
+    The previous level's SQL injection was quite simple to pull off and still have a valid SQL query. This was, in part, because your injection happened at the very end of the query. In this level, however, your injection happens partway through, and there is (a bit) more of the SQL query afterwards. This complicates matters, because the query must remain valid despite your injection.
+
+    - my solution:
+
+      - see image.
+      - use `--` to comment out trailing characters to avoid error
+![alt text](image.png)
