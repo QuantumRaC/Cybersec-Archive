@@ -284,8 +284,17 @@
 - `nslookup [url]`
   - looks up the domain's IP addr
 
+- `ip`
+  - `ip addr add 10.0.0.0/24 dev eth0` adds `10.0.0.0` with subnet mask `255.255.255.0` to the `eth0` interface
 - `ip address show`
   - `ip a s` - lists the available network interfaces
+
+- `iptables`
+  - configures linux package filtering rules
+  - add rule: `iptables -A INPUT -p tcp --dport 22 -s 10.10.0.0/24 -d 10.0.0.0 -j ACCEPT`
+    - accepts all input from tcp pot 22 within the IP range to 10.0.0.0
+  - `-L` lists all current rules
+    - `--line-numbers` displays line numbers to each rule
 
 - `libpcap` library
   - `tcpdump`
