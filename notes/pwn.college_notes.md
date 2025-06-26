@@ -5,6 +5,7 @@
 - [Intro to Cybersecurity](#intro-to-cybersecurity)
   - [Web Security](#web-security)
 - [Intercepting Communication](#intercepting-communication)
+- [Cryptography](#cryptography)
 
 
 ## Linux Luminarium
@@ -1642,3 +1643,83 @@ HINT: If you're wondering why your solution isn't working, make sure what you're
     - my solution
 
         iptables -A INPUT -p tcp --dport 31337 -s 10.0.0.3 -j DROP
+
+17. Ethernet
+
+    - my solution
+    - ethernet-script.py:
+        #!/usr/bin/env python3
+        from scapy.all import *
+        ether_layer = Ether(type=0xFFFF)
+        ip_layer = IP(dst = "10.0.0.2")
+        packet = ether_layer / ip_layer
+        sendp(packet)
+
+
+# Cryptography
+
+2. XORing Hex
+
+Of course, as you also learned in Dealing with Data, we tend to represent values in computer memory as hexadecimal. If you don't remember what that is, go back and review those levels. Otherwise, go forth and practice some hexadecimal XOR here!
+
+- my solution
+  - python:
+  - hex(int('68',16)^int('44',16)) //0x68 XOR 0x44; outputs hex
+
+3. XORing ASCII
+
+    Much of the field of Cryptography deals with encrypting text. This text, as you might (again!) recall from Dealing with Data is mapped to specific byte values, as specified by an encoding standard, such as ASCII or UTF-8. Here, we'll stick to ASCII, though the concepts apply identically to other encodings.
+
+    The cool thing is that, since ASCII puts byte values to characters, we can do operations like XOR! This has obvious implications for cryptography.
+
+    In this level, we'll explore these implications byte by byte. The challenge will give you one letter a time, along with a key to "decrypt" (XOR) the letter with. You give us the result of the XOR. For example:
+
+    hacker@dojo:~$ /challenge/run
+    Challenge number 0...
+    - Encrypted Character: A
+    - XOR Key: 0x01
+    - Decrypted Character?
+    How would you approach this? You can man ascii and find the entry for A:
+
+    Oct   Dec   Hex   Char
+    ──────────────────────
+    101   65    41    A
+    So A is 0x41 in hex. You would XOR that with 0x01 The result here would be: 0x41 ^ 0x01 == 0x40, and, according to man ascii:
+
+    Oct   Dec   Hex   Char
+    ──────────────────────
+    100   64    40    @
+    It's the @ character!
+
+    hacker@dojo:~$ /challenge/run
+    Challenge number 0...
+    - Encrypted Character: A
+    - XOR Key: 0x01
+    - Decrypted Character? @
+    Correct! Moving on.
+
+    - my solution
+    - python
+        chr(ord('}')^int('28',16)) // ASCII character '}' XOR 0x28; outputs 'U‘
+
+4. One-time pad
+    In this challenge you will decrypt a secret encrypted with a one-time pad. Although simple, this is the most secure encryption mechanism, if a) you can securely transfer the key and b) you only ever use the pad once. It's also the most simple encryption mechanism: you simply XOR the bits of the plaintext with the bits of the key one by one!
+
+    This challenge encrypts the flag with a one-time pad and then gives you the key. Luckily, a one-time pad is a symmetric cryptosystem: that is, you use the same key to encrypt and to decrypt, so you have everything you need to decrypt the flag!
+
+    Fun fact: the One-time Pad is the only cryptosystem that humanity has been able to prove is perfectly secure. If you securely transfer the key, and you only use it for one message, it cannot be cracked even by attackers with infinite computational power! We have not been able to make this proof for any other cryptosystem.
+
+   - my solution:
+        hacker@cryptography~one-time-pad:~$ /challenge/run
+        One-Time Pad Key (hex): b8747658e7f4a364abb83525285ab81fd002c56334f01c2274dac4300728c130fb4339887efbc48e401c189101b8c3b072017235501dac2ba12d840c
+        Flag Ciphertext (hex): c8031876849bcf08cedf505e692afd57a843fc0746a9494916a9be5f44468a07c9764dcd0acab6a0114428f27bf5b9c71b4f0a643a50d56edb7af906
+
+            >>> key_hex = 'b8747658e7f4a364abb83525285ab81fd002c56334f01c2274dac4300728c130fb4339887efbc48e401c189101b8c3b072017235501dac2ba12d840c'
+            >>> ciphertext_hex = 'c8031876849bcf08cedf505e692afd57a843fc0746a9494916a9be5f44468a07c9764dcd0acab6a0114428f27bf5b9c71b4f0a643a50d56edb7af906'
+            >>> ciphertext_bytes = bytes.fromhex(ciphertext_hex)
+            >>> key_bytes = bytes.fromhex(key_hex)
+            >>> key_bytes
+            b'\xb8tvX\xe7\xf4\xa3d\xab\xb85%(Z\xb8\x1f\xd0\x02\xc5c4\xf0\x1c"t\xda\xc40\x07(\xc10\xfbC9\x88~\xfb\xc4\x8e@\x1c\x18\x91\x01\xb8\xc3\xb0r\x01r5P\x1d\xac+\xa1-\x84\x0c'
+            >>> plaintext_bytes = bytes([c ^ k for c,k in zip(ciphertext_bytes, key_bytes)])>>> plaintext = plaintext_bytes.decode('ascii')
+            >>> plaintext
+            'pwn.college{ApEHxA9drYUkbszoCnK725tEt1r.QX0czMzwiNxQjMyEzW}\n'
