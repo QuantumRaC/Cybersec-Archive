@@ -185,6 +185,15 @@
 
 # Networks
 
+- `nc`
+  - `nc 10.0.0.0 31337` connects to 10.0.0.0 at port 31337
+  - enter contents to be sent after `nc`
+  - netcat is a simple tool that translates data from standard input to network packets and vice versa to standard output
+    - `-N` - shutdown the connection after EOF input (closing standard input), e.g. Ctrl-D
+  - `-l` listens for an incoming connection instead of initiating one
+    - destination and port either as non-optional arguments or with options `-s` and `-p` respectively
+
+
 - `ssh`
   - e.g. `ssh racc@10.10.10.10` logs in as user racc with target IP using [SSH](network_notes.md#ssh-secure-shell)
   - runs on **port 22**
