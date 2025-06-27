@@ -1723,3 +1723,186 @@ Of course, as you also learned in Dealing with Data, we tend to represent values
             >>> plaintext_bytes = bytes([c ^ k for c,k in zip(ciphertext_bytes, key_bytes)])>>> plaintext = plaintext_bytes.decode('ascii')
             >>> plaintext
             'pwn.college{ApEHxA9drYUkbszoCnK725tEt1r.QX0czMzwiNxQjMyEzW}\n'
+
+
+5. OTP Tampering
+
+So, the One Time Pad is proven to be secure... but only in the Confidential sense! It actually does not guarantee anything about Integrity. This challenge asks you: what if you could tamper with the message in transit? Think about how XOR works, and see if you can get the flag!
+
+    - python scripts of the task:
+
+    - dispatcher.py
+            #!/opt/pwn.college/python
+
+            from Crypto.Util.strxor import strxor
+
+            key = open("/challenge/.key", "rb").read()
+            ciphertext = strxor(b"sleep", key[:5])
+
+            print(f"TASK: {ciphertext.hex()}")
+
+
+    - worker.py
+            #!/opt/pwn.college/python
+
+            from Crypto.Util.strxor import strxor
+
+            import time
+            import sys
+
+            key = open("/challenge/.key", "rb").read()
+
+            while line := sys.stdin.readline():
+                if not line.startswith("TASK: "):
+                    continue
+                data = bytes.fromhex(line.split()[1])
+                cipher_len = min(len(data), len(key))
+                plaintext = strxor(data[:cipher_len], key[:cipher_len])
+
+                print(f"Hex of plaintext: {plaintext.hex()}")
+                print(f"Received command: {plaintext}")
+                if plaintext == b"sleep":
+                    print("Sleeping!")
+                    time.sleep(1)
+                elif plaintext == b"flag!":
+                    print("Victory! Your flag:")
+                    print(open("/flag").read())
+                else:
+                    print("Unknown command!")
+
+    - my solution
+        TASK: bd22ad9155
+            >>> plaintext = "736c656570" //'sleep'
+            >>> new_text = "666c616721" //'flag!'
+            >>> key = hex(int(plaintext,16)^int("bd22ad9155",16))
+            >>> key
+            '0xce4ec8f425'
+            >>> ciphertext = hex(int(new_text,16)^int(key,16))
+            >>> ciphertext
+            '0xa822a99304'
+
+            hacker@cryptography~one-time-pad-tampering:/challenge$ ./worker
+            TASK: a822a99304
+            Hex of plaintext: 666c616721
+            Received command: b'flag!'
+            Victory! Your flag:
+            pwn.college{0fHKrn-512vqFWE9ycfh0J-Hf8I.01M3kjNxwiNxQjMyEzW}
+
+
+6. Many-Time Pad
+
+hacker@cryptography~many-time-pad:/challenge$ cat /challenge/run
+#!/opt/pwn.college/python
+
+from Crypto.Random import get_random_bytes
+from Crypto.Util.strxor import strxor
+
+flag = open("/flag", "rb").read()
+
+key = get_random_bytes(256)
+ciphertext = strxor(flag, key[:len(flag)])
+
+print(f"Flag Ciphertext (hex): {ciphertext.hex()}")
+
+while True:
+    plaintext = bytes.fromhex(input("Plaintext (hex): "))
+    ciphertext = strxor(plaintext, key[:len(plaintext)])
+    print(f"Ciphertext (hex): {ciphertext.hex()}")
+
+hacker@cryptography~many-time-pad:/challenge$ /challenge/run
+Flag Ciphertext (hex): f540a915869afd4450d8ac23fc409048574a483b7f3a1453fc5369f72ecc9f5d589bf49fa7cf05077a5fe0e34d206446f8725e4b557422ef02881c15
+Plaintext (hex): f540a915869afd4450d8ac23fc409048574a483b7f3a1453fc5369f72ecc9f5d589bf49fa7cf05077a5fe0e34d206446f8725e4b557422ef02881c15
+Ciphertext (hex): 70776e2e636f6c6c6567657b6b71703073594d7164782d717336795a585f41764c4c6455594f592e515831637a4d7a77694e78516a4d79457a577d0a
+
+>>> from Crypto.Util.strxor import strxor
+>>> cipherflag = bytes.fromhex("f540a915869afd4450d8ac23fc409048574a483b7f3a1453fc5369f72ecc9f5d589bf49fa7cf05077a5fe0e34d206446f8725e4b557422ef02881c15")
+>>> cipherfk = bytes.fromhex("70776e2e636f6c6c6567657b6b71703073594d7164782d717336795a585f41764c4c6455594f592e515831637a4d7a77694e78516a4d79457a577d0a")
+>>> key = strxor(cipherflag,cipherfk)
+>>> key
+b'\x857\xc7;\xe5\xf5\x91(5\xbf\xc9X\x971\xe0x$\x13\x05J\x1bB9"\x8fe\x10\xadv\x93\xde+\x14\xd7\x90\xca\xfe\x80\\)+\x07\xd1\x807m\x1e1\x91<&\x1a?9[\xaax\xdfa\x1f'
+>>> flag = strxor(cipherflag,key)
+>>> flag
+b'pwn.college{kqp0sYMqdx-qs6yZX_AvLLdUYOY.QX1czMzwiNxQjMyEzW}\n'
+
+
+7. AES
+
+    Enter: the Advanced Encryption Standard, AES. AES is relatively new: coming on the scene in 2001. Like a One-time Pad, AES is also symmetric: the same key is used to encrypt and decrypt. Unlike a One-time Pad, AES maintains security for multiple messages encrypted with the same key.
+
+    In this challenge you will decrypt a secret encrypted with Advanced Encryption Standard (AES).
+    AES is what is called a "block cipher", encrypting one plaintext "block" of 16 bytes (128 bits) at a time. So AAAABBBBCCCCDDDD would be a single block of plaintext that would be encrypted into a single block of ciphertext.
+
+    AES must operate on complete blocks. If the plaintext is shorter than a block (e.g., AAAABBBB), it will be padded to the block size, and the padded plaintext will be encrypted.
+
+    Different AES "modes" define what to do when the plaintext is longer than one block. In this challenge, we are using the simplest mode: "Electronic Codebook (ECB)". In ECB, each block is encrypted separately with the same key and simply concatenated together. So if you are encrypting something like AAAABBBBCCCCDDDDEEEEFFFFGGGGHHHH, it will be split into two plaintext blocks (AAAABBBBCCCCDDDD and EEEEFFFFGGGGHHHH), encrypted separately (resulting, let's imagine, in UVSDFGIWEHFBFFCA and LKXBFVYASLJDEWEU), then concatenated (resulting the ciphertext UVSDFGIWEHFBFFCALKXBFVYASLJDEWEU).
+
+    This challenge will give you the AES-encrypted flag and the key used to encrypt it. We won't learn about the internals of AES, in terms of how it actually encrypts the raw bytes. Instead, we'll learn about different applications of AES, and how they break down in practice. If you're interested in learning about AES internals, we can highly recommend CryptoHack, an amazing learning resource that focuses on the nitty gritty details of crypto!
+
+   - my solution:
+       #!/opt/pwn.college/python
+       from Crypto.Cipher import AES
+       from Crypto.Hash import HMAC, SHA256
+
+       key = bytes.fromhex(input("Input AES key in hex: "))
+       # key = bytes.fromhex("1c838fca8732cdc8d31d8d6b2b6f39f8")
+
+       ciphertext = bytes.fromhex(input("Input Flag ciphertext in hex: "))
+       # ciphertext = bytes.fromhex("999a9347813337519252065974febd09963dff382ff727563>
+       cipher = AES.new(key, AES.MODE_ECB)
+       message = cipher.decrypt(ciphertext)
+       print("Flag: ", message.decode())
+
+
+8. AES-ECB-CPA
+
+Though the core of the AES crypto algorithm is thought to be secure (not proven to be, though: no one has managed to do that! But no one has managed to significantly break the crypto in the 20+ years of its use, either), this core only encrypts 128-bit (16 byte) blocks at a time. To actually use AES in practice, one must build a cryptosystem on top of it.
+
+In the previous level, we used the AES-ECB cryptosystem: an Electronic Codebook Cipher where every block is independently encrypted by the same key. This system is quite simple but, as we will discover here, extremely susceptible to a certain class of attack.
+
+Cryptosystems are held to very high standard of ciphertext indistinguishability. That is, an attacker that lacks the key to the cryptosystem should not be able to distinguish between pairs of ciphertext based on the plaintext that was encrypted. For example, if the attacker looks at ciphertexts UVSDFGIWEHFBFFCA and LKXBFVYASLJDEWEU, and is able to determine that the latter was produced from the plaintext EEEEFFFFGGGGHHHH (or, in fact, figure out any information about the plaintext at all!), the cryptosystem is considered broken. This property must hold even if the attacker already knows part or all of the plaintext, a setting known as the Known Plaintext Attack, or can even control part or all of the plaintext, a setting known as the Chosen Plaintext Attack!
+
+ECB is susceptible to both known and chosen plaintext attack. Because every block is encrypted with the same key, with no other modifications, an attacker can observe identical ciphertext across different blocks that have identical plaintext. Moreover, if the attacker can choose or learn the plaintext associated with some of these blocks, they can carefully build a mapping from known-plaintext to known-ciphertext, and use that as a lookup table to decrypt other matching ciphertext!
+
+In this level, you will do just this: you will build a codebook mapping from ciphertext to chosen plaintext, then use that to decrypt the flag. Good luck!
+
+- my solution
+  - building a codebook with every possible character, storing them in a list;
+  - requesting a ciphertext for every character in the flag and comparing them to the list to figure out which character it is
+
+    !/opt/pwn.college/python
+    from pwn import *
+    sideA = str("aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxrxXyYzZ,./:;\'\"[]{}|-=!@#$%^&*()`~1234567890<>?_+ ")
+    sideB = []
+    flag = ""
+    no_match = 0
+    print("Script launched. Starting /challenge/run now")
+    with process('/challenge/run') as p:
+            print("Launched /challenge/run. Starting to write codebook")
+            for i in range(0,len(sideA)):
+                    p.writelineafter('Choice? ', b'1')
+                    p.writelineafter('Data? ', sideA[i].encode())
+                    outp = p.recvuntil(b'Result: ')
+                    result = p.recvline().strip()
+                    sideB.append(result)
+                    print(str(sideA[i]) + " encoded into: " + str(result))
+            print("Codebook Finished. Starting to decrypt flag")
+            for i in range(0, 62):
+                    p.writelineafter('Choice? ', b'2')
+                    p.writelineafter('Index? ', str(i).encode())
+                    p.writelineafter('Length? ', b'1')
+                    outp = p.recvuntil(b'Result: ')
+                    result = p.recvline().strip()
+                    # print("Received result: "  + str(result) + ", comparing")
+                    match = False
+                    for paired in range(len(sideB)):
+                            if sideB[paired]==result:
+                                    flag += sideA[paired]
+                                    print("Found Match for: " + str(sideA[paired]) + "  - encrypted as " +str(result))
+                                    match = True
+                                    break
+                    if not match:
+                            print("WARNING: NO MATCH FOR INDEX "+ str(i) + "- " + str(result))
+                            no_match += 1
+            p.close()
+    print("FINAL DECIPHERED PLAINTEXT (decrypted AES-ECB): "+ flag)
+    print(str(no_match) + " characters couldn't be deciphered.")
