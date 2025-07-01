@@ -1906,3 +1906,125 @@ In this level, you will do just this: you will build a codebook mapping from cip
             p.close()
     print("FINAL DECIPHERED PLAINTEXT (decrypted AES-ECB): "+ flag)
     print(str(no_match) + " characters couldn't be deciphered.")
+
+
+
+10. AES-ECB-CPA HTTP
+
+Okay, now we'll try that attack in a slightly more realistic scenario. Can you remember your SQL to carry out the attack and recover the flag?
+
+- my solution (not correct yet; couldn't figure out why)
+    !/opt/pwn.college/python
+    import requests
+    from pwn import *
+    from bs4 import BeautifulSoup
+    sideA = str("aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxrxXyYzZ,.:;[]{}|-=!~1234567890@^*()+ _")
+    # sideB = b"43d2ac8e83570d28d6f75095547875454a3b86cd467e1c524c42e316e7950cee22025d7fea7bbbadb8cfb8a7eddb565910347486862723275b856dad6a011969d4e17ed842539eb24c4b55bce53a9bfbb4f66ac9>
+    sideB = []
+    flag = ""
+    no_match = 0
+
+    print("Script launched.")
+    r = requests.get("http://challenge.localhost:80/?query=\'t\'")
+    soup = BeautifulSoup(r.text, 'html.parser')
+    results_tag = soup.find('b', text='Results:').find_next('pre')
+    result = results_tag.text.strip()
+    t = result
+
+    r = requests.get("http://challenge.localhost:80/?query=\'f\'")
+    soup = BeautifulSoup(r.text, 'html.parser')
+    results_tag = soup.find('b', text = 'Results:').find_next('pre')
+    result = results_tag.text.strip()
+    f = result
+    print("Codebook Finished. Starting to decrypt flag")
+
+    for i in range(0, 62):
+        match = False
+        for ch in sideA:
+            pattern = '_'*i + ch + '%'
+            r = requests.get("http://challenge.localhost:80/?query=CASE+WHEN+(flag+LIKE+\'"+pattern+"\')+THEN+\'t\'+ELSE+\'f\'+END")
+            soup = BeautifulSoup(r.text, 'html.parser')
+            results_tag = soup.find('b', text='Results:').find_next('pre')
+            results = results_tag.text.strip()
+            if results == t and not match:
+                flag += ch
+                print(ch + " - match found")
+                match = True
+                break
+        if not match:
+            print("Character "+str(i)+" couldn't be deciphered")
+            no_match += 1
+
+    print("FINAL DECIPHERED PLAINTEXT (decrypted AES-ECB): "+ flag)
+    print(str(no_match) + " characters couldn't be deciphered.")
+
+
+
+11. AES-ECB-CPA suffix
+
+Okay, now let's complicate things slightly to increase the realism. It's rare that you can just craft queries for the plaintext that you want. However, it's less rare that you can isolate the tail end of some data into its own block, and in ECB, this is bad news. We'll explore this concept in this challenge, replacing your ability to query substrings of the flag with just an ability to encrypt some bytes off the end.
+
+Show us that you can still solve this!
+
+HINT: Keep in mind that, once you recover some part of the end of the flag, you can build a new codebook with additional prefixes of the known parts, and repeat the attack on the previous byte!
+
+- my solution:
+
+        !/opt/pwn.college/python
+        from pwn import *
+        sideA = str("aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxrxXyYzZ,./:;\'\"[]{}|-=!@#$%^&*()`~1234567890<>?_+>
+        # sideB = b"43d2ac8e83570d28d6f75095547875454a3b86cd467e1c524c42e316e7950cee22025d7fea7bbbadb8cfb8a7eddb565910>
+        sideB = []
+        flag = ""
+        no_match = 0
+        print("Script launched. Starting /challenge/run now")
+        with process('/challenge/run') as p:
+            print("Launched /challenge/run. Starting script")
+            for i in range(0,60):
+                p.writelineafter('Choice? ', b'2')
+                p.writelineafter('Length?', str(i+1).encode())
+                outp = p.recvuntil(b'Result: ')
+                suffix_encoded = p.recvline().strip()
+                print("Encoded suffix length " + str(i+1))
+                match = False
+                for j in range(0, len(sideA)):
+                    plaintext = sideA[j]+flag
+                    p.writelineafter('Choice? ', b'1')
+                    p.writelineafter('Data? ', plaintext.encode())
+                    outp = p.recvuntil(b'Result: ')
+                    ciphertext = p.recvline().strip()
+                    if ciphertext == suffix_encoded:
+                        flag = plaintext
+                        print("Found char " + str(sideA[j]) + "; current flag: " + str(flag))
+                        match = True
+                        break
+                if not match:
+                    no_match =+ 1
+                    print("No match for location" + str(i+1))
+        p.close()
+        print("DECODED FLAG (AES-ECB-CPA): " + flag + ", length " + str(len(flag)))
+        print(str(no_match)+ " characters unable to be matched")
+
+
+16. AES-CBC
+
+Okay, hopefully we agree that ECB is a bad block cipher mode. Let's explore one that isn't so bad: Cipher Block Chaining (CBC). CBC mode encrypts blocks sequentially, and before encrypting plaintext block number N, it XORs it with the previous ciphertext block (number N-1). When decrypting, after decrypting ciphertext block N, it XORs the decrypted (but still XORed) result with the previous ciphertext block (number N-1) to recover the original plaintext block N. For the very first block, since there is no "previous" block to use, CBC cryptosystems generate a random initial block called an Initialization Vector (IV). The IV is used to XOR the first block of plaintext, and is transmitted along with the message (often prepended to it). This means that if you encrypt one block of plaintext in CBC mode, you might get two blocks of "ciphertext": the IV, and your single block of actual ciphertext.
+
+All this means that, when you change any part of the plaintext, those changes will propagate through to all subsequent ciphertext blocks because of the XOR-based chaining, preserving ciphertext indistinguishability for those blocks. That will stop you from carrying out the chosen-plaintext prefix attacks from the last few challenges. Moreover, every time you re-encrypt, even with the same key, a new (random) IV will be used, which will propagate changes to all of the blocks anyways, which means that even your sampling-based CPA attacks from the even earlier levels will not work, either.
+
+Sounds pretty good, right? The only relevant disadvantage that CBC has over EBC is that encryption has to happen sequentially. With ECB, you could encrypt, say, only the last part of the message if that's all you have to send. With CBC, you must encrypt the message from the beginning. In practice, this does not tend to be a problem, and ECB should never be used over CBC.
+
+This level is just a quick look at CBC. We'll encrypt the flag with CBC mode. Go and decrypt it!
+
+- my solution:
+
+    >>> from Crypto.Cipher import AES
+    >>> key = bytes.fromhex("226a36c8bed7e08ab10351c5afaceeb8")
+    >>> flag_cipher = bytes.fromhex("c839e4e07c41c447cc7aaa70f2b8e990886dadb03a1773a7e674cee0c32b5c8caf856bc0bffca9c13b4003fae180bb887b2c48e10175a68d70322c602cb5ed09776db7da9490eaf3f2419d3c6db9893d")
+    >>> cipher = AES.new(key, AES.MODE_CBC)
+    >>> flag = cipher.decrypt(flag_cipher)
+    >>> print("Flag: ", flag)
+    Flag:  b'\xcb@yo\xec\xad\xf0+\xd6}\xcfBh\x85\x81\xfbpwn.college{kKQCN2DJyQFjA4BrFSlaUd229OV.QX3MzN5wiNxQjMyEzW}\n\x04\x04\x04\x04'
+
+
+
