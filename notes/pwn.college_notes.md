@@ -6,6 +6,7 @@
   - [Web Security](#web-security)
 - [Intercepting Communication](#intercepting-communication)
 - [Cryptography](#cryptography)
+- [Access Control](#access-control)
 
 
 ## Linux Luminarium
@@ -2027,4 +2028,106 @@ This level is just a quick look at CBC. We'll encrypt the flag with CBC mode. Go
     Flag:  b'\xcb@yo\xec\xad\xf0+\xd6}\xcfBh\x85\x81\xfbpwn.college{kKQCN2DJyQFjA4BrFSlaUd229OV.QX3MzN5wiNxQjMyEzW}\n\x04\x04\x04\x04'
 
 
+
+# Access Control
+
+10. Level 10
+
+Flag owned by a group
+
+- my solution:
+
+        hacker@access-control~level10:~$ /challenge/run
+        ===== Welcome to Access Control! =====
+        In this series of challenges, you will be working with various access control systems.
+        Break the system to get the flag.
+
+
+        In this challenge you will work understand how UNIX permissions works with multiple users.
+
+        You'll also be given access to various user accounts, use su to switch between them.
+
+        Hint: How can you tell which user is in what group?
+
+
+        Before:
+        -r-------- 1 root root 60 Jul  2 02:20 /flag
+        Created user user_srbkpvwn with password vgbcjzan
+        Created user user_gromylzq with password glnelitn
+        Created user user_idoqzmni with password sdtgzasl
+        Created user user_oowbxgus with password qfqizeuy
+        Created user user_kkdgdrhs with password yppgjyiw
+        Created user user_ovkowvem with password yjhmffjk
+        Created user user_ararzanq with password xoeysxbl
+        Created user user_bhkypmeg with password cjldrdre
+        Created user user_eyptvdhv with password qdiiozef
+        Created user user_smrcsxan with password yedqajhc
+        After:
+        ----r----- 1 root group_wsu 60 Jul  2 02:20 /flag
+        hacker@access-control~level10:~$ getent group group_wsu
+        group_wsu:x:1001:user_ararzanq
+        hacker@access-control~level10:~$ su user_ararzanq
+        Password: 
+        user_ararzanq@access-control~level10:/home/hacker$ cat /flag
+        pwn.college{Yq76r2PGXZviKOviC8v7GME9doG.QXxMDOzwiNxQjMyEzW}
+
+
+12. Level 12
+
+Find the flag using multiple users
+
+- my solution
+
+    hacker@access-control~level12:~$ /challenge/run
+    ===== Welcome to Access Control! =====
+    In this series of challenges, you will be working with various access control systems.
+    Break the system to get the flag.
+
+
+    In this challenge you will work understand how UNIX permissions for directories work with multiple users.
+
+    You'll be given access to various user accounts, use su to switch between them.
+
+
+    Created user user_xhihxkcc with password wkeaggtj
+    Created user user_atjwkfdf with password wutaoqin
+    Created user user_tnfuvjuv with password rgptsfke
+    A copy of the flag has been placed somewhere in /tmp:
+    total 56
+    drwxrwxrwt 1 root   root          4096 Jul  2 02:47 .
+    drwxr-xr-x 1 root   root          4096 Jul  2 02:45 ..
+    drwxrwxrwt 2 hacker hacker        4096 Jul  2 02:45 .ICE-unix
+    -r--r--r-- 1 hacker hacker          11 Jul  2 02:45 .X0-lock
+    drwxrwxrwt 2 hacker hacker        4096 Jul  2 02:45 .X11-unix
+    -rw-r--r-- 1 root   root            55 Jun 26 23:26 .crates.toml
+    -rw-r--r-- 1 root   root           453 Jun 26 23:26 .crates2.json
+    drwxr-xr-x 2 hacker hacker        4096 Jul  2 02:46 .dojo
+    -rw------- 1 hacker hacker         466 Jul  2 02:45 .xfsm-ICE-QYK882
+    drwxr-xr-x 2 root   root          4096 Jun 26 23:26 bin
+    srwxrwxrwx 1 hacker hacker           0 Jul  2 02:45 dbus-7dFtrSuzvo
+    drwxr-xr-x 1 root   root          4096 Jun 26 23:15 hsperfdata_root
+    drwx------ 2 hacker hacker        4096 Jul  2 02:45 ssh-XXXXXXnfXd5B
+    drwx------ 2 mysql  mysql         4096 Jun 26 23:16 tmp.uF0GSd4MeS
+    dr-xr-x--x 3 root   user_tnfuvjuv 4096 Jul  2 02:47 tmpg_3ujzvl
+    hacker@access-control~level12:~$ ls -l /tmp/tmpg_3ujzvl/
+    ls: cannot open directory '/tmp/tmpg_3ujzvl/': Permission denied
+    hacker@access-control~level12:~$ su user_tnfuvjuv
+    Password: 
+    user_tnfuvjuv@access-control~level12:/home/hacker$ ls -l /tmp/tmpg_3ujzvl
+    total 4
+    dr-xr-x--x 2 root user_xhihxkcc 4096 Jul  2 02:47 tmpcf5127xr
+    user_tnfuvjuv@access-control~level12:/home/hacker$ cd /tmp/tmpg_3ujzvl
+    user_tnfuvjuv@access-control~level12:/tmp/tmpg_3ujzvl$ su user_xhihxkcc
+    Password: 
+    user_xhihxkcc@access-control~level12:/tmp/tmpg_3ujzvl$ ls
+    ls: cannot open directory '.': Permission denied
+    user_xhihxkcc@access-control~level12:/tmp/tmpg_3ujzvl$ cd tmpcf5127xr
+    user_xhihxkcc@access-control~level12:/tmp/tmpg_3ujzvl/tmpcf5127xr$ ls
+    tmpbqnjlaiu
+    user_xhihxkcc@access-control~level12:/tmp/tmpg_3ujzvl/tmpcf5127xr$ ls -l tmpbqnjlaiu
+    -r--r----- 1 root user_atjwkfdf 60 Jul  2 02:47 tmpbqnjlaiu
+    user_xhihxkcc@access-control~level12:/tmp/tmpg_3ujzvl/tmpcf5127xr$ su user_atjwkfdf
+    Password: 
+    user_atjwkfdf@access-control~level12:/tmp/tmpg_3ujzvl/tmpcf5127xr$ cat tmpbqnjlaiu
+    pwn.college{EC0CAPwC6TfZGZ3hk2cAhYmtoVP.QXzMDOzwiNxQjMyEzW}
 
